@@ -403,7 +403,7 @@ function attachEvents(container) {
 
     const backendBase = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'https://chilly-readers-post.loca.lt'
-      : 'https://talentplus-backend.onrender.com';
+      : 'https://talentplus.onrender.com';
     const webhookUrl = `${backendBase}/api/webhooks/google-form`;
     const appsScriptCode = `// ─────────────────────────────────────────────────────────────
 // TalentPulse Google Form Integration Script for Job: ${job.title || 'Requisition'}
