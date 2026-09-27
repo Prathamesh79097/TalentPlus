@@ -26,8 +26,14 @@ cors:
     - "http://localhost:5500"
     - "null"  # Allow file:// origin for local dev
 
+# Google Form Webhook Security
+google:
+  webhook:
+    secret: ${GOOGLE_WEBHOOK_SECRET:talentpulse-secret-key}
+
 # Logging
 logging:
   level:
     com.recruitx: DEBUG
     org.springframework.security: DEBUG
+

@@ -19,6 +19,8 @@ public class JobController {
     public ResponseEntity<List<Map<String, Object>>> getAllJobs(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String department,
+            @RequestParam(required = false) String field,
+            @RequestParam(required = false) String subField,
             @RequestParam(required = false) String jobType) throws Exception {
 
         List<Map<String, Object>> jobs;
@@ -29,10 +31,18 @@ public class JobController {
             jobs = db.findAll(COLLECTION);
         }
 
-        // Filter by department
-        if (department != null && !department.isEmpty()) {
-            final String dept = department;
-            jobs = jobs.stream().filter(j -> dept.equals(j.get("department"))).toList();
+        // Filter by field or department
+        if ((field != null && !field.isEmpty()) || (department != null && !department.isEmpty())) {
+            final String targetField = field != null && !field.isEmpty() ? field : department;
+            jobs = jobs.stream().filter(j ->
+                targetField.equals(j.get("field")) || targetField.equals(j.get("department"))
+            ).toList();
+        }
+
+        // Filter by subField
+        if (subField != null && !subField.isEmpty()) {
+            final String sf = subField;
+            jobs = jobs.stream().filter(j -> sf.equals(j.get("subField"))).toList();
         }
 
         // Filter by jobType

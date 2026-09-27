@@ -2,7 +2,9 @@
 // TalentPulse – App Router & Core Application Logic
 // ─────────────────────────────────────────────────────────────────
 
-const API_BASE = 'http://localhost:8081/api';
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:8081/api'
+  : (window.BACKEND_API_URL || 'https://talentplus-backend.onrender.com/api');
 window.currentPage = 'dashboard';
 
 // ── Toast Notifications ──────────────────────────────────────────

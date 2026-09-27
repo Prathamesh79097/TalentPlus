@@ -14,6 +14,60 @@ export async function render(container) {
   attachEvents(container);
 }
 
+const FIELDS_MAP = {
+  'Engineering & IT': [
+    'Software Engineering',
+    'Frontend Development',
+    'Backend Development',
+    'Fullstack Development',
+    'Mobile App Development (iOS/Android)',
+    'Data Science & AI/ML',
+    'DevOps & Cloud Architecture',
+    'Cybersecurity & Network',
+    'Quality Assurance / QA Testing',
+    'Database & Infrastructure'
+  ],
+  'Product & Design': [
+    'Product Management',
+    'UI/UX Design',
+    'Product Marketing',
+    'User Research & Analytics',
+    'Graphic & Brand Design'
+  ],
+  'Human Resources': [
+    'Talent Acquisition / Recruiting',
+    'HR Operations & Compliance',
+    'Compensation & Benefits',
+    'Learning & Development',
+    'Employee Relations'
+  ],
+  'Sales & Marketing': [
+    'Business Development & Sales',
+    'Digital Marketing & SEO',
+    'Content & Brand Marketing',
+    'Customer Success & Support',
+    'Account Management'
+  ],
+  'Finance & Accounting': [
+    'Financial Planning & Analysis (FP&A)',
+    'Accounting & Audit',
+    'Corporate Finance',
+    'Tax & Payroll'
+  ],
+  'Operations & Business': [
+    'Supply Chain & Logistics',
+    'Project / Program Management',
+    'Business Operations',
+    'Legal & Compliance'
+  ],
+  'Healthcare & Medical': [
+    'Clinical & Nursing',
+    'Medical Research',
+    'Pharmaceuticals',
+    'Healthcare Administration'
+  ]
+};
+
 function buildLayout(jobs) {
   return `
   <!-- ═══ DESKTOP ═══ -->
@@ -36,7 +90,7 @@ function buildLayout(jobs) {
       <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-wrap items-center gap-space-md">
         <div class="relative flex-1 min-w-[200px]">
           <span class="material-symbols-outlined absolute left-space-md top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none">search</span>
-          <input id="job-search" class="w-full h-10 pl-10 pr-space-md bg-surface-container-low rounded-lg text-on-surface placeholder:text-outline text-body-sm focus:outline-none focus:ring-2 focus:ring-secondary transition-all" placeholder="Search job title, department..."/>
+          <input id="job-search" class="w-full h-10 pl-10 pr-space-md bg-surface-container-low rounded-lg text-on-surface placeholder:text-outline text-body-sm focus:outline-none focus:ring-2 focus:ring-secondary transition-all" placeholder="Search job title, field..."/>
         </div>
         <select id="status-filter" class="h-10 px-space-md bg-surface-container-low rounded-lg text-on-surface text-body-sm font-body-sm focus:outline-none focus:ring-2 focus:ring-secondary appearance-none cursor-pointer pr-8">
           <option value="">All Status</option>
@@ -46,12 +100,8 @@ function buildLayout(jobs) {
           <option value="CLOSED">Closed</option>
         </select>
         <select id="dept-filter" class="h-10 px-space-md bg-surface-container-low rounded-lg text-on-surface text-body-sm font-body-sm focus:outline-none focus:ring-2 focus:ring-secondary appearance-none cursor-pointer pr-8">
-          <option value="">All Departments</option>
-          <option value="Engineering">Engineering</option>
-          <option value="Product">Product & Design</option>
-          <option value="Operations">Operations</option>
-          <option value="Sales">Sales</option>
-          <option value="HR">Human Resources</option>
+          <option value="">All Fields</option>
+          ${Object.keys(FIELDS_MAP).map(f => `<option value="${f}">${f}</option>`).join('')}
         </select>
         <select id="type-filter" class="h-10 px-space-md bg-surface-container-low rounded-lg text-on-surface text-body-sm font-body-sm focus:outline-none focus:ring-2 focus:ring-secondary appearance-none cursor-pointer pr-8">
           <option value="">All Types</option>
@@ -68,7 +118,7 @@ function buildLayout(jobs) {
           <thead class="bg-surface-container-low border-b border-outline-variant/30">
             <tr>
               <th class="text-left px-space-xl py-space-md font-label-sm text-label-sm text-outline uppercase tracking-wider">Job Title</th>
-              <th class="text-left px-space-md py-space-md font-label-sm text-label-sm text-outline uppercase tracking-wider">Department</th>
+              <th class="text-left px-space-md py-space-md font-label-sm text-label-sm text-outline uppercase tracking-wider">Field / Sub-field</th>
               <th class="text-left px-space-md py-space-md font-label-sm text-label-sm text-outline uppercase tracking-wider">Type</th>
               <th class="text-left px-space-md py-space-md font-label-sm text-label-sm text-outline uppercase tracking-wider">Applicants</th>
               <th class="text-left px-space-md py-space-md font-label-sm text-label-sm text-outline uppercase tracking-wider">Status</th>
@@ -126,6 +176,8 @@ function buildLayout(jobs) {
 }
 
 function renderJobRow(job) {
+  const fieldDisplay = job.field || job.department || 'Engineering & IT';
+  const subfieldDisplay = job.subField ? ` (${job.subField})` : '';
   return `
   <tr class="hover:bg-surface-container-low transition-colors">
     <td class="px-space-xl py-space-md">
@@ -135,7 +187,7 @@ function renderJobRow(job) {
       </div>
     </td>
     <td class="px-space-md py-space-md">
-      <span class="font-body-sm text-body-sm text-on-surface">${job.department}</span>
+      <span class="font-body-sm text-body-sm text-on-surface">${fieldDisplay}${subfieldDisplay}</span>
     </td>
     <td class="px-space-md py-space-md">
       <span class="font-body-sm text-body-sm text-on-surface">${formatType(job.jobType)}</span>
@@ -154,6 +206,9 @@ function renderJobRow(job) {
     </td>
     <td class="px-space-xl py-space-md text-right">
       <div class="flex items-center justify-end gap-space-sm">
+        <button onclick="window.openGoogleFormModal('${job.id}')" class="px-space-md py-space-xs rounded-lg bg-secondary/10 text-secondary font-label-md text-label-md hover:bg-secondary/20 transition-colors flex items-center gap-1" title="Configure Google Form Application">
+          <span class="material-symbols-outlined text-[16px]">description</span>Form
+        </button>
         <button onclick="window.viewJobApplicants('${job.id}')" class="px-space-md py-space-xs rounded-lg bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-container-high transition-colors">View</button>
         <button onclick="window.editJob('${job.id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors">
           <span class="material-symbols-outlined text-[18px]">edit</span>
@@ -167,12 +222,14 @@ function renderJobRow(job) {
 }
 
 function renderJobCard(job) {
+  const fieldDisplay = job.field || job.department || 'Engineering & IT';
+  const subfieldDisplay = job.subField ? ` • ${job.subField}` : '';
   return `
   <div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer" onclick="window.viewJobApplicants('${job.id}')">
     <div class="flex items-start justify-between mb-space-sm">
       <div class="flex-1 min-w-0">
         <h3 class="font-headline-sm text-headline-sm text-on-surface truncate">${job.title}</h3>
-        <p class="font-body-sm text-body-sm text-on-surface-variant">${job.department} • ${job.location || 'Remote'}</p>
+        <p class="font-body-sm text-body-sm text-on-surface-variant">${fieldDisplay}${subfieldDisplay} • ${job.location || 'Remote'}</p>
       </div>
       ${window.statusBadge(job.status?.toLowerCase() || 'open')}
     </div>
@@ -182,12 +239,21 @@ function renderJobCard(job) {
         <span class="font-body-sm text-body-sm text-on-surface-variant">${job.applicantCount || 0} applicants</span>
         ${(job.newApplicants > 0) ? `<span class="font-label-sm text-label-sm text-secondary bg-secondary/10 px-2 py-0.5 rounded-full">+${job.newApplicants} new</span>` : ''}
       </div>
-      <span class="font-label-sm text-label-sm text-outline">${window.fmtDate(job.postedDate || job.createdAt)}</span>
+      <div class="flex items-center gap-space-sm">
+        <button onclick="event.stopPropagation(); window.openGoogleFormModal('${job.id}')" class="px-space-xs py-0.5 rounded bg-secondary/10 text-secondary font-label-sm text-label-sm hover:bg-secondary/20 transition-colors flex items-center gap-1">
+          <span class="material-symbols-outlined text-[14px]">description</span>Form
+        </button>
+        <span class="font-label-sm text-label-sm text-outline">${window.fmtDate(job.postedDate || job.createdAt)}</span>
+      </div>
     </div>
   </div>`;
 }
 
 function renderJobForm(job = {}) {
+  const currentField = job.field || job.department || 'Engineering & IT';
+  const currentSubField = job.subField || '';
+  const subFields = FIELDS_MAP[currentField] || Object.values(FIELDS_MAP)[0];
+
   return `
   <div class="p-6 flex flex-col gap-space-lg">
     <div class="flex items-center justify-between">
@@ -206,10 +272,17 @@ function renderJobForm(job = {}) {
             placeholder="e.g. Senior Software Engineer"/>
         </div>
         <div class="flex flex-col gap-space-xs">
-          <label class="font-label-md text-label-md text-on-surface-variant">Department *</label>
-          <select id="job-dept" required class="h-11 px-space-md bg-surface-container-low rounded-lg text-on-surface text-body-md focus:outline-none focus:ring-2 focus:ring-secondary appearance-none">
-            <option value="">Select department</option>
-            ${['Engineering','Product','Design','Operations','Sales','HR','Finance','Legal'].map(d => `<option value="${d}" ${job.department===d?'selected':''}>${d}</option>`).join('')}
+          <label class="font-label-md text-label-md text-on-surface-variant">Field *</label>
+          <select id="job-field" required class="h-11 px-space-md bg-surface-container-low rounded-lg text-on-surface text-body-md focus:outline-none focus:ring-2 focus:ring-secondary appearance-none">
+            <option value="">Select Field</option>
+            ${Object.keys(FIELDS_MAP).map(f => `<option value="${f}" ${currentField===f?'selected':''}>${f}</option>`).join('')}
+          </select>
+        </div>
+        <div class="flex flex-col gap-space-xs">
+          <label class="font-label-md text-label-md text-on-surface-variant">Sub-field / Specialization *</label>
+          <select id="job-subfield" required class="h-11 px-space-md bg-surface-container-low rounded-lg text-on-surface text-body-md focus:outline-none focus:ring-2 focus:ring-secondary appearance-none">
+            <option value="">Select Sub-field</option>
+            ${subFields.map(sf => `<option value="${sf}" ${currentSubField===sf?'selected':''}>${sf}</option>`).join('')}
           </select>
         </div>
         <div class="flex flex-col gap-space-xs">
@@ -319,11 +392,177 @@ function attachEvents(container) {
       } catch { window.showToast('Failed to delete job', 'error'); }
     });
   };
+
+  window.openGoogleFormModal = async (jobId) => {
+    let job = null;
+    try {
+      job = await window.api.get(`/jobs/${jobId}`);
+    } catch {
+      job = { id: jobId, title: 'Job Requisition', googleFormUrl: '' };
+    }
+
+    const tunnelUrl = 'https://chilly-readers-post.loca.lt';
+    const webhookUrl = `${tunnelUrl}/api/webhooks/google-form`;
+    const appsScriptCode = `// ─────────────────────────────────────────────────────────────
+// TalentPulse Google Form Integration Script for Job: ${job.title || 'Requisition'}
+// ─────────────────────────────────────────────────────────────
+
+const WEBHOOK_URL = "${webhookUrl}";
+const WEBHOOK_SECRET = "talentpulse-secret-key";
+const JOB_ID = "${job.id}";
+
+function onFormSubmit(e) {
+  if (!e || !e.namedValues) {
+    Logger.log("No form submit values found.");
+    return;
+  }
+  const itemResponses = e.namedValues;
+  
+  const payload = {
+    jobId: JOB_ID,
+    firstName: getVal(itemResponses, ["First Name", "First name", "Name", "Full Name"]) || "Applicant",
+    lastName: getVal(itemResponses, ["Last Name", "Last name", "Surname"]) || "",
+    email: getVal(itemResponses, ["Email", "Email Address", "Email address"]),
+    phone: getVal(itemResponses, ["Phone", "Phone Number", "Mobile", "Contact Number"]),
+    skills: parseSkills(getVal(itemResponses, ["Skills", "Required Skills", "Key Skills"])),
+    yearsExperience: parseInt(getVal(itemResponses, ["Experience", "Years of Experience"])) || 0,
+    education: getVal(itemResponses, ["Education", "Degree", "Qualification"]),
+    currentCompany: getVal(itemResponses, ["Current Company", "Company"]),
+    linkedinUrl: getVal(itemResponses, ["LinkedIn", "LinkedIn URL", "LinkedIn Profile"]),
+    githubUrl: getVal(itemResponses, ["GitHub", "GitHub URL", "Portfolio"]),
+    resumeUrl: getVal(itemResponses, ["Resume", "CV", "Upload Resume", "Resume Link"]),
+    source: "Google Form",
+    notes: "Submitted via Google Form on " + new Date().toLocaleString()
+  };
+
+  const options = {
+    method: "post",
+    contentType: "application/json",
+    headers: { "X-Webhook-Secret": WEBHOOK_SECRET },
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  };
+
+  try {
+    const res = UrlFetchApp.fetch(WEBHOOK_URL, options);
+    Logger.log("Response: " + res.getContentText());
+  } catch (err) {
+    Logger.log("Error sending webhook: " + err.toString());
+  }
+}
+
+function getVal(responses, keys) {
+  for (let k of keys) {
+    for (let key in responses) {
+      if (key.toLowerCase().includes(k.toLowerCase())) {
+        const val = responses[key];
+        return Array.isArray(val) ? val[0] : val;
+      }
+    }
+  }
+  return "";
+}
+
+function parseSkills(str) {
+  if (!str) return [];
+  return str.split(",").map(s => s.trim()).filter(Boolean);
+}`;
+
+    const content = `
+    <div class="p-6 flex flex-col gap-space-lg max-w-2xl w-full">
+      <div class="flex items-center justify-between border-b border-outline-variant/30 pb-space-md">
+        <div class="flex items-center gap-space-md">
+          <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[24px]">description</span>
+          </div>
+          <div>
+            <h2 class="font-headline-md text-headline-md text-on-surface">Google Form Integration</h2>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">${job.title} (ID: <code class="bg-surface-container px-1.5 py-0.5 rounded text-primary font-mono text-xs">${job.id}</code>)</p>
+          </div>
+        </div>
+        <button onclick="window.closeModal()" class="w-8 h-8 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-high">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="flex flex-col gap-space-lg">
+        <div class="bg-surface-container-low p-space-md rounded-xl flex flex-col gap-space-xs">
+          <label class="font-label-md text-label-md text-on-surface font-semibold">Google Form Applicant Link</label>
+          <div class="flex gap-space-xs">
+            <input id="gf-url-input" type="url" value="${job.googleFormUrl || ''}" placeholder="https://forms.gle/..."
+              class="flex-1 h-10 px-space-md bg-surface-container-lowest rounded-lg text-on-surface text-body-sm focus:outline-none focus:ring-2 focus:ring-secondary"/>
+            <button id="gf-save-btn" class="h-10 px-space-md bg-primary text-on-primary font-label-md text-label-md rounded-lg hover:bg-secondary transition-colors shrink-0">Save Link</button>
+            ${job.googleFormUrl ? `<a href="${job.googleFormUrl}" target="_blank" class="h-10 px-space-md bg-surface-container text-on-surface font-label-md text-label-md rounded-lg hover:bg-surface-container-high transition-colors flex items-center gap-1 shrink-0"><span class="material-symbols-outlined text-[16px]">open_in_new</span>Open</a>` : ''}
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-space-xs">
+          <label class="font-label-md text-label-md text-on-surface-variant">Webhook Endpoint URL</label>
+          <div class="flex items-center gap-space-xs bg-surface-container-low p-2 rounded-lg">
+            <input type="text" readonly value="${webhookUrl}" class="flex-1 bg-transparent text-body-sm font-mono text-on-surface px-2 focus:outline-none"/>
+            <button onclick="navigator.clipboard.writeText('${webhookUrl}'); window.showToast('Webhook URL copied!', 'success')" class="px-space-md py-1.5 bg-surface-container-lowest text-on-surface rounded font-label-sm text-label-sm hover:bg-surface-container-high shadow-sm shrink-0">Copy URL</button>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-space-xs">
+          <div class="flex items-center justify-between">
+            <label class="font-label-md text-label-md text-on-surface-variant">Google Apps Script Code (Configured for Job)</label>
+            <button id="copy-script-btn" class="text-secondary font-label-md text-label-md hover:underline flex items-center gap-1">
+              <span class="material-symbols-outlined text-[16px]">content_copy</span> Copy Code
+            </button>
+          </div>
+          <textarea id="apps-script-textarea" readonly rows="7" class="w-full p-space-md bg-surface-container-lowest rounded-lg font-mono text-body-xs text-on-surface border border-outline-variant/30 focus:outline-none resize-none">${appsScriptCode}</textarea>
+        </div>
+
+        <div class="bg-surface-container-lowest p-space-md rounded-xl border border-outline-variant/30 flex flex-col gap-space-xs">
+          <span class="font-headline-sm text-headline-sm text-on-surface mb-1">Integration Instructions</span>
+          <ol class="list-decimal list-inside font-body-sm text-body-sm text-on-surface-variant space-y-1">
+            <li>Open Google Form → Responses → Link to Sheets.</li>
+            <li>In Google Sheet → Extensions → Apps Script.</li>
+            <li>Paste code above & click <b>Save</b> (💾 icon).</li>
+            <li>Go to <b>Triggers</b> (⏰ icon) → Add Trigger → Select <code>onFormSubmit</code> → Event: <code>On form submit</code> → Save.</li>
+          </ol>
+        </div>
+      </div>
+    </div>`;
+
+    window.openModal(content);
+
+    const saveBtn = document.getElementById('gf-save-btn');
+    saveBtn?.addEventListener('click', async () => {
+      const url = document.getElementById('gf-url-input').value.trim();
+      saveBtn.disabled = true;
+      try {
+        await window.api.patch(`/jobs/${jobId}`, { googleFormUrl: url });
+        window.showToast('Google Form link saved for job!', 'success');
+        window.closeModal();
+        window.loadPage('job-openings');
+      } catch {
+        window.showToast('Failed to save Google Form link', 'error');
+        saveBtn.disabled = false;
+      }
+    });
+
+    document.getElementById('copy-script-btn')?.addEventListener('click', () => {
+      navigator.clipboard.writeText(appsScriptCode);
+      window.showToast('Google Apps Script copied!', 'success');
+    });
+  };
 }
 
 function attachJobFormSubmit(existingId = null) {
   const form = document.getElementById('job-form');
   if (!form) return;
+
+  const fieldSelect = document.getElementById('job-field');
+  const subfieldSelect = document.getElementById('job-subfield');
+  fieldSelect?.addEventListener('change', (e) => {
+    const selected = e.target.value;
+    const list = FIELDS_MAP[selected] || [];
+    subfieldSelect.innerHTML = '<option value="">Select Sub-field</option>' +
+      list.map(sf => `<option value="${sf}">${sf}</option>`).join('');
+  });
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('job-submit');
@@ -332,9 +571,14 @@ function attachJobFormSubmit(existingId = null) {
     btn.innerHTML = '<div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>';
     errEl.classList.add('hidden');
 
+    const selectedField = document.getElementById('job-field').value;
+    const selectedSubField = document.getElementById('job-subfield').value;
+
     const payload = {
       title: document.getElementById('job-title').value,
-      department: document.getElementById('job-dept').value,
+      field: selectedField,
+      subField: selectedSubField,
+      department: selectedField,
       jobType: document.getElementById('job-type').value,
       location: document.getElementById('job-location').value,
       salaryRange: document.getElementById('job-salary').value,

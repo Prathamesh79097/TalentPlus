@@ -119,6 +119,7 @@ function buildLayout(applicants, jobs, selectedJobId) {
 
 function renderApplicantRow(a) {
   const stars = '★'.repeat(Math.round(a.rating || 0)) + '☆'.repeat(5 - Math.round(a.rating || 0));
+  const isGoogleForm = a.source === 'Google Form';
   return `
   <tr class="hover:bg-surface-container-low transition-colors cursor-pointer" onclick="window.viewCandidate('${a.id}')">
     <td class="px-space-xl py-space-md">
@@ -127,7 +128,10 @@ function renderApplicantRow(a) {
           ${(a.firstName||a.name||'C')[0]?.toUpperCase()}
         </div>
         <div>
-          <p class="font-headline-sm text-headline-sm text-on-surface">${a.firstName || ''} ${a.lastName || a.name || ''}</p>
+          <div class="flex items-center gap-space-xs">
+            <p class="font-headline-sm text-headline-sm text-on-surface">${a.firstName || ''} ${a.lastName || a.name || ''}</p>
+            ${isGoogleForm ? `<span class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 font-label-sm text-[10px] font-semibold flex items-center gap-0.5" title="Applied via Google Form"><span class="material-symbols-outlined text-[12px]">description</span>Form</span>` : ''}
+          </div>
           <p class="font-body-sm text-body-sm text-outline">${a.email}</p>
         </div>
       </div>
@@ -156,6 +160,7 @@ function renderApplicantRow(a) {
 }
 
 function renderApplicantCard(a) {
+  const isGoogleForm = a.source === 'Google Form';
   return `
   <div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer" onclick="window.viewCandidate('${a.id}')">
     <div class="flex items-start justify-between mb-space-sm">
@@ -164,7 +169,10 @@ function renderApplicantCard(a) {
           ${(a.firstName||a.name||'C')[0]?.toUpperCase()}
         </div>
         <div class="min-w-0">
-          <h3 class="font-headline-sm text-headline-sm text-on-surface truncate">${a.firstName || ''} ${a.lastName || a.name || ''}</h3>
+          <div class="flex items-center gap-space-xs">
+            <h3 class="font-headline-sm text-headline-sm text-on-surface truncate">${a.firstName || ''} ${a.lastName || a.name || ''}</h3>
+            ${isGoogleForm ? `<span class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 font-label-sm text-[10px] font-semibold flex items-center gap-0.5" title="Applied via Google Form"><span class="material-symbols-outlined text-[12px]">description</span>Form</span>` : ''}
+          </div>
           <p class="font-body-sm text-body-sm text-on-surface-variant truncate">${a.jobTitle || a.appliedRole || 'General Application'}</p>
         </div>
       </div>
