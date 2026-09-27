@@ -401,8 +401,10 @@ function attachEvents(container) {
       job = { id: jobId, title: 'Job Requisition', googleFormUrl: '' };
     }
 
-    const tunnelUrl = 'https://chilly-readers-post.loca.lt';
-    const webhookUrl = `${tunnelUrl}/api/webhooks/google-form`;
+    const backendBase = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'https://chilly-readers-post.loca.lt'
+      : 'https://talentplus-backend.onrender.com';
+    const webhookUrl = `${backendBase}/api/webhooks/google-form`;
     const appsScriptCode = `// ─────────────────────────────────────────────────────────────
 // TalentPulse Google Form Integration Script for Job: ${job.title || 'Requisition'}
 // ─────────────────────────────────────────────────────────────
