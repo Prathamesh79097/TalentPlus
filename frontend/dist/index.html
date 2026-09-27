@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>TalentPulse – Recruitment Management System</title>
+  <meta name="description"
+    content="TalentPulse is a modern, full-featured recruitment management system for hiring managers and talent acquisition teams." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-high": "#dce9ff",
+            "on-secondary-fixed": "#00174b",
+            "on-secondary-container": "#fefcff",
+            "outline-variant": "#c5c5d3",
+            "surface-bright": "#f8f9ff",
+            "secondary-container": "#316bf3",
+            "tertiary-fixed": "#dce3ec",
+            "background": "#f8f9ff",
+            "surface-container-lowest": "#ffffff",
+            "inverse-on-surface": "#eaf1ff",
+            "error": "#ba1a1a",
+            "surface-variant": "#d3e4fe",
+            "inverse-surface": "#213145",
+            "surface-container-low": "#eff4ff",
+            "on-error-container": "#93000a",
+            "outline": "#757682",
+            "inverse-primary": "#b6c4ff",
+            "surface-container-highest": "#d3e4fe",
+            "on-error": "#ffffff",
+            "on-tertiary-fixed": "#151c23",
+            "on-secondary": "#ffffff",
+            "surface-tint": "#4059aa",
+            "on-surface-variant": "#444651",
+            "on-tertiary-container": "#a6adb5",
+            "primary": "#00236f",
+            "surface-container": "#e5eeff",
+            "on-primary": "#ffffff",
+            "secondary-fixed-dim": "#b4c5ff",
+            "on-surface": "#0b1c30",
+            "secondary": "#0051d5",
+            "surface": "#f8f9ff",
+            "primary-container": "#1e3a8a",
+            "on-primary-fixed": "#00164e",
+            "tertiary": "#242b32",
+            "surface-dim": "#cbdbf5",
+            "tertiary-fixed-dim": "#c0c7d0",
+            "on-background": "#0b1c30",
+            "error-container": "#ffdad6",
+            "on-primary-fixed-variant": "#264191",
+            "on-primary-container": "#90a8ff",
+            "on-tertiary": "#ffffff",
+            "on-secondary-fixed-variant": "#003ea8",
+            "tertiary-container": "#3a4148",
+            "primary-fixed-dim": "#b6c4ff",
+            "primary-fixed": "#dce1ff",
+            "secondary-fixed": "#dbe1ff",
+            "on-tertiary-fixed-variant": "#40484f",
+            "status-hired": "#059669",
+            "status-hired-bg": "#ecfdf5",
+            "status-screening": "#d97706",
+            "status-screening-bg": "#fffbeb",
+            "status-interview": "#4f46e5",
+            "status-interview-bg": "#eef2ff",
+            "status-rejected": "#e11d48",
+            "status-rejected-bg": "#fff1f2",
+          },
+          borderRadius: {
+            DEFAULT: "0.25rem",
+            lg: "0.5rem",
+            xl: "0.75rem",
+            full: "9999px",
+          },
+          spacing: {
+            "space-xs": "0.25rem",
+            "margin": "1rem",
+            "gutter-tablet": "1rem",
+            "space-sm": "0.5rem",
+            "space-md": "0.75rem",
+            "space-xl": "1.5rem",
+            "space-lg": "1rem",
+            "margin-desktop": "2rem",
+            "gutter-desktop": "1.5rem",
+            "gutter": "0.75rem",
+            "margin-tablet": "1.5rem",
+          },
+          fontFamily: {
+            "headline-sm": ["Inter"],
+            "headline-lg": ["Inter"],
+            "headline-md": ["Inter"],
+            "body-lg": ["Inter"],
+            "body-md": ["Inter"],
+            "headline-lg-mobile": ["Inter"],
+            "label-sm": ["Inter"],
+            "body-sm": ["Inter"],
+            "label-md": ["Inter"],
+          },
+          fontSize: {
+            "headline-sm": ["16px", { lineHeight: "22px", fontWeight: "600" }],
+            "headline-lg": ["30px", { lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "700" }],
+            "headline-md": ["20px", { lineHeight: "26px", letterSpacing: "-0.01em", fontWeight: "600" }],
+            "body-lg": ["15px", { lineHeight: "22px", fontWeight: "400" }],
+            "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+            "headline-lg-mobile": ["24px", { lineHeight: "30px", letterSpacing: "-0.015em", fontWeight: "700" }],
+            "label-sm": ["11px", { lineHeight: "14px", letterSpacing: "0.025em", fontWeight: "600" }],
+            "body-sm": ["13px", { lineHeight: "18px", fontWeight: "400" }],
+            "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "600" }],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    @layer base {
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+      }
+
+      body {
+        overscroll-behavior: none;
+        font-family: 'Inter', sans-serif;
+      }
+
+      .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+
+      .pt-safe {
+        padding-top: env(safe-area-inset-top, 0px);
+      }
+    }
+
+    ::-webkit-scrollbar {
+      display: none;
+    }
+
+    * {
+      scrollbar-width: none;
+    }
+
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Page transition animations */
+    .page-enter {
+      animation: pageEnter 0.25s ease-out forwards;
+    }
+
+    @keyframes pageEnter {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Status badge colors */
+    .badge-new {
+      background: #eff4ff;
+      color: #0051d5;
+    }
+
+    .badge-screening {
+      background: #fffbeb;
+      color: #d97706;
+    }
+
+    .badge-interview {
+      background: #eef2ff;
+      color: #4f46e5;
+    }
+
+    .badge-offer {
+      background: #ecfdf5;
+      color: #059669;
+    }
+
+    .badge-selected {
+      background: #ecfdf5;
+      color: #059669;
+    }
+
+    .badge-rejected {
+      background: #fff1f2;
+      color: #e11d48;
+    }
+
+    .badge-hired {
+      background: #ecfdf5;
+      color: #059669;
+    }
+
+    .badge-open {
+      background: #eff4ff;
+      color: #0051d5;
+    }
+
+    .badge-draft {
+      background: #e5eeff;
+      color: #444651;
+    }
+
+    .badge-closed {
+      background: #fff1f2;
+      color: #e11d48;
+    }
+
+    .badge-paused {
+      background: #fffbeb;
+      color: #d97706;
+    }
+
+    .badge-pending {
+      background: #fffbeb;
+      color: #d97706;
+    }
+
+    .badge-accepted {
+      background: #ecfdf5;
+      color: #059669;
+    }
+
+    .badge-declined {
+      background: #fff1f2;
+      color: #e11d48;
+    }
+
+    .badge-expired {
+      background: #e5eeff;
+      color: #444651;
+    }
+
+    /* Toast notifications */
+    #toast-container {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .toast {
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 14px;
+      font-weight: 500;
+      max-width: 360px;
+      animation: toastIn 0.3s ease-out;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .toast-success {
+      background: #059669;
+      color: #fff;
+    }
+
+    .toast-error {
+      background: #ba1a1a;
+      color: #fff;
+    }
+
+    .toast-info {
+      background: #1e3a8a;
+      color: #fff;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateX(100%);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* Loading spinner */
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid #e5eeff;
+      border-top-color: #0051d5;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Modal overlay */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(33, 49, 69, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 1rem;
+      max-width: 560px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      animation: modalIn 0.25s ease-out;
+    }
+
+    @keyframes modalIn {
+      from {
+        opacity: 0;
+        transform: scale(0.96);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Bottom sheet for mobile */
+    .bottom-sheet {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-radius: 1.25rem 1.25rem 0 0;
+      z-index: 200;
+      padding: 1rem;
+      box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.12);
+      animation: sheetIn 0.3s ease-out;
+    }
+
+    @keyframes sheetIn {
+      from {
+        transform: translateY(100%);
+      }
+
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    /* Sidebar active state */
+    .nav-link.active {
+      background: #1e3a8a !important;
+      color: #ffffff !important;
+    }
+
+    .nav-link.active span {
+      color: #ffffff !important;
+    }
+
+    /* Bottom nav active */
+    .bottom-nav-item.active .nav-icon,
+    .bottom-nav-item.active .nav-label {
+      color: #0051d5 !important;
+    }
+  </style>
+  <script type="module" crossorigin src="/assets/index-DY7eSsum.js"></script>
+</head>
+
+<body class="bg-background font-body-md text-on-surface antialiased">
+
+  <!-- Toast container -->
+  <div id="toast-container"></div>
+
+  <!-- Auth screen (shown before login) -->
+  <div id="auth-screen" class="hidden">
+    <!-- Loaded dynamically from pages/login.html -->
+  </div>
+
+  <!-- App shell (shown after login) -->
+  <div id="app-shell" class="hidden">
+
+    <!-- ══════════ DESKTOP SIDEBAR ══════════ -->
+    <aside id="desktop-sidebar"
+      class="fixed left-0 top-0 h-full w-64 bg-surface-container-low flex flex-col z-50 shadow-[0_1px_8px_rgba(0,0,0,0.04)] hidden lg:flex">
+      <!-- Logo -->
+      <div
+        class="h-16 flex items-center px-space-xl gap-space-sm bg-surface-container-lowest border-b border-outline-variant/30">
+        <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+          <span class="material-symbols-outlined text-on-primary text-[18px]">bolt</span>
+        </div>
+        <span class="font-headline-sm text-headline-sm text-primary tracking-tight">TalentPulse</span>
+      </div>
+      <!-- Nav -->
+      <div class="flex-1 overflow-y-auto px-space-md py-space-lg flex flex-col justify-between">
+        <nav class="flex flex-col gap-space-xs">
+          <div class="px-space-md pb-space-xs">
+            <span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Recruitment Core</span>
+          </div>
+          <a class="nav-link flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors cursor-pointer"
+            data-page="dashboard">
+            <span class="material-symbols-outlined text-[22px]">grid_view</span>
+            <span class="font-body-md text-body-md font-medium">Dashboard</span>
+          </a>
+          <a class="nav-link flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors cursor-pointer"
+            data-page="job-openings">
+            <span class="material-symbols-outlined text-[22px]">work</span>
+            <span class="font-body-md text-body-md font-medium">Job Openings</span>
+          </a>
+          <a class="nav-link flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors cursor-pointer"
+            data-page="applicants">
+            <span class="material-symbols-outlined text-[22px]">group</span>
+            <span class="font-body-md text-body-md font-medium">Applicants</span>
+          </a>
+          <a class="nav-link flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors cursor-pointer"
+            data-page="screening">
+            <span class="material-symbols-outlined text-[22px]">fact_check</span>
+            <span class="font-body-md text-body-md font-medium">Screening</span>
+          </a>
+          <a class="nav-link flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors cursor-pointer"
+            data-page="interviews">
+            <span class="material-symbols-outlined text-[22px]">calendar_month</span>
+            <span class="font-body-md text-body-md font-medium">Interviews</span>
+          </a>
+          <a class="nav-link flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors cursor-pointer"
+            data-page="selection">
+            <span class="material-symbols-outlined text-[22px]">checklist</span>
+            <span class="font-body-md text-body-md font-medium">Selection</span>
+          </a>
+          <a class="nav-link flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors cursor-pointer"
+            data-page="job-offers">
+            <span class="material-symbols-outlined text-[22px]">verified_user</span>
+            <span class="font-body-md text-body-md font-medium">Job Offers</span>
+          </a>
+          <div class="px-space-md pt-space-lg pb-space-xs">
+            <span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Intelligence & Config</span>
+          </div>
+          <a class="nav-link flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors cursor-pointer"
+            data-page="reports">
+            <span class="material-symbols-outlined text-[22px]">bar_chart</span>
+            <span class="font-body-md text-body-md font-medium">Reports</span>
+          </a>
+          <a class="nav-link flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors cursor-pointer"
+            data-page="settings">
+            <span class="material-symbols-outlined text-[22px]">settings</span>
+            <span class="font-body-md text-body-md font-medium">Settings</span>
+          </a>
+        </nav>
+        <!-- Pipeline health badge -->
+        <div class="bg-surface-container p-space-md rounded-xl mt-space-lg flex items-center justify-between">
+          <div class="flex flex-col">
+            <span class="font-label-md text-label-md text-on-surface">Pipeline Health</span>
+            <span id="sidebar-pipeline-health"
+              class="font-label-sm text-label-sm text-secondary font-semibold">Loading...</span>
+          </div>
+          <span class="material-symbols-outlined text-secondary">trending_up</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ══════════ DESKTOP HEADER ══════════ -->
+    <header id="desktop-header"
+      class="hidden lg:flex fixed top-0 left-64 right-0 h-16 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 items-center justify-between px-space-xl">
+      <div class="flex items-center gap-space-lg flex-1 max-w-xl">
+        <div class="relative flex-1">
+          <span
+            class="material-symbols-outlined absolute left-space-md top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none">search</span>
+          <input id="global-search"
+            class="w-full h-10 pl-10 pr-space-md bg-surface-container-lowest text-on-surface placeholder:text-outline rounded-lg text-body-sm font-body-sm focus:outline-none focus:ring-2 focus:ring-secondary transition-all"
+            placeholder="Search candidates, jobs, skills..." type="text" />
+        </div>
+      </div>
+      <div class="flex items-center gap-space-lg">
+        <div class="flex items-center gap-space-xs">
+          <button id="notif-btn" aria-label="Notifications"
+            class="w-10 h-10 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors relative">
+            <span class="material-symbols-outlined">notifications</span>
+            <span id="notif-dot"
+              class="absolute top-2 right-2 w-2 h-2 rounded-full bg-error ring-2 ring-surface hidden"></span>
+          </button>
+        </div>
+        <div class="h-8 w-px bg-outline-variant/40 mx-space-xs"></div>
+        <div class="flex items-center gap-space-md">
+          <div class="flex flex-col text-right">
+            <span id="header-user-name"
+              class="font-label-md text-label-md text-on-surface leading-tight">Loading...</span>
+            <span id="header-user-role" class="font-label-sm text-label-sm text-outline">Recruiter</span>
+          </div>
+          <div class="relative flex items-center cursor-pointer" id="user-menu-btn">
+            <div id="header-avatar"
+              class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary font-semibold text-sm">
+              ?</div>
+            <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-secondary ring-2 ring-surface"></span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- User dropdown -->
+    <div id="user-dropdown"
+      class="hidden fixed z-50 bg-surface-container-lowest rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.12)] border border-outline-variant/30 w-52 p-space-xs">
+      <button onclick="window.logout()"
+        class="w-full flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors">
+        <span class="material-symbols-outlined text-[20px]">logout</span>
+        <span class="font-body-md text-body-md">Sign Out</span>
+      </button>
+    </div>
+
+    <!-- ══════════ MOBILE HEADER ══════════ -->
+    <header id="mobile-header"
+      class="lg:hidden fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe">
+      <div class="h-16 px-margin flex items-center justify-between gap-space-sm">
+        <div class="flex items-center gap-space-sm min-w-0">
+          <button aria-label="Open Menu"
+            class="w-11 h-11 flex items-center justify-center rounded-lg text-on-surface hover:bg-surface-container active:scale-95"
+            id="mobile-menu-btn">
+            <span class="material-symbols-outlined text-[24px]">menu</span>
+          </button>
+          <div class="flex flex-col min-w-0">
+            <span
+              class="font-label-sm text-label-sm text-secondary uppercase tracking-wider truncate">TalentPulse</span>
+            <span id="mobile-page-title"
+              class="font-headline-sm text-headline-sm text-on-surface truncate">Dashboard</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-space-xs shrink-0">
+          <button aria-label="Notifications"
+            class="w-11 h-11 flex items-center justify-center rounded-lg relative text-on-surface-variant hover:text-on-surface hover:bg-surface-container active:scale-95">
+            <span class="material-symbols-outlined text-[24px]">notifications</span>
+            <span id="mobile-notif-dot"
+              class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-error ring-2 ring-surface hidden"></span>
+          </button>
+          <div id="mobile-avatar"
+            class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary font-semibold text-sm">
+            ?</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ══════════ MOBILE DRAWER ══════════ -->
+    <div id="drawer-backdrop"
+      class="fixed inset-0 z-50 bg-inverse-surface/40 backdrop-blur-sm hidden transition-opacity lg:hidden"></div>
+    <aside id="drawer-menu"
+      class="fixed top-0 left-0 bottom-0 z-50 w-72 max-w-[85vw] bg-surface-container-lowest shadow-[0_20px_25px_-5px_rgba(15,23,42,0.12)] -translate-x-full transition-transform duration-300 flex flex-col pt-safe pb-safe lg:hidden">
+      <div class="h-16 px-margin flex items-center justify-between bg-surface-container-low">
+        <div class="flex items-center gap-space-sm">
+          <div class="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-on-primary text-[16px]">bolt</span>
+          </div>
+          <span class="font-headline-sm text-headline-sm text-primary">TalentPulse</span>
+        </div>
+        <button aria-label="Close Menu"
+          class="w-11 h-11 flex items-center justify-center rounded-lg text-on-surface-variant hover:text-on-surface"
+          id="close-drawer-btn">
+          <span class="material-symbols-outlined text-[24px]">close</span>
+        </button>
+      </div>
+      <div
+        class="px-margin py-space-md bg-surface-container-lowest border-b border-surface-container-high/60 flex items-center gap-space-md">
+        <div id="drawer-avatar"
+          class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-semibold">?
+        </div>
+        <div class="flex flex-col min-w-0">
+          <span id="drawer-user-name"
+            class="font-headline-sm text-headline-sm text-on-surface truncate">Loading...</span>
+          <span id="drawer-user-role"
+            class="font-body-sm text-body-sm text-on-surface-variant truncate">Recruiter</span>
+        </div>
+      </div>
+      <nav class="flex-1 overflow-y-auto p-space-sm space-y-1">
+        <a class="mobile-nav-link flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors min-h-[44px] cursor-pointer"
+          data-page="dashboard">
+          <span class="material-symbols-outlined text-[22px]">grid_view</span>
+          <span class="font-body-md text-body-md">Dashboard</span>
+        </a>
+        <a class="mobile-nav-link flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors min-h-[44px] cursor-pointer"
+          data-page="job-openings">
+          <span class="material-symbols-outlined text-[22px]">work</span>
+          <span class="font-body-md text-body-md">Job Openings</span>
+        </a>
+        <a class="mobile-nav-link flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors min-h-[44px] cursor-pointer"
+          data-page="applicants">
+          <span class="material-symbols-outlined text-[22px]">group</span>
+          <span class="font-body-md text-body-md">Applicants</span>
+        </a>
+        <a class="mobile-nav-link flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors min-h-[44px] cursor-pointer"
+          data-page="screening">
+          <span class="material-symbols-outlined text-[22px]">filter_list</span>
+          <span class="font-body-md text-body-md">Screening</span>
+        </a>
+        <a class="mobile-nav-link flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors min-h-[44px] cursor-pointer"
+          data-page="interviews">
+          <span class="material-symbols-outlined text-[22px]">calendar_month</span>
+          <span class="font-body-md text-body-md">Interviews</span>
+        </a>
+        <a class="mobile-nav-link flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors min-h-[44px] cursor-pointer"
+          data-page="selection">
+          <span class="material-symbols-outlined text-[22px]">verified</span>
+          <span class="font-body-md text-body-md">Selection</span>
+        </a>
+        <a class="mobile-nav-link flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors min-h-[44px] cursor-pointer"
+          data-page="job-offers">
+          <span class="material-symbols-outlined text-[22px]">local_offer</span>
+          <span class="font-body-md text-body-md">Job Offers</span>
+        </a>
+        <a class="mobile-nav-link flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors min-h-[44px] cursor-pointer"
+          data-page="reports">
+          <span class="material-symbols-outlined text-[22px]">bar_chart</span>
+          <span class="font-body-md text-body-md">Reports</span>
+        </a>
+        <a class="mobile-nav-link flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors min-h-[44px] cursor-pointer"
+          data-page="settings">
+          <span class="material-symbols-outlined text-[22px]">settings</span>
+          <span class="font-body-md text-body-md">Settings</span>
+        </a>
+      </nav>
+      <div class="p-space-md border-t border-surface-container-high/60">
+        <button onclick="window.logout()"
+          class="w-full flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-error/10 hover:text-error transition-colors min-h-[44px]">
+          <span class="material-symbols-outlined text-[22px]">logout</span>
+          <span class="font-body-md text-body-md">Sign Out</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ══════════ MAIN CONTENT AREA ══════════ -->
+    <main id="main-content" class="lg:pl-64 pt-16 min-h-screen bg-surface">
+      <div id="page-content" class="w-full">
+        <!-- Pages load here dynamically -->
+        <div class="flex items-center justify-center h-64">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ══════════ MOBILE BOTTOM NAV ══════════ -->
+    <nav
+      class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface-container-lowest border-t border-outline-variant/30 z-40 pb-safe">
+      <div class="flex items-center justify-around h-16">
+        <button
+          class="bottom-nav-item flex flex-col items-center gap-0.5 px-4 py-2 min-w-[60px] active:scale-95 transition-transform"
+          data-page="dashboard">
+          <span class="nav-icon material-symbols-outlined text-[24px] text-on-surface-variant">grid_view</span>
+          <span class="nav-label font-label-sm text-label-sm text-on-surface-variant">Home</span>
+        </button>
+        <button
+          class="bottom-nav-item flex flex-col items-center gap-0.5 px-4 py-2 min-w-[60px] active:scale-95 transition-transform"
+          data-page="applicants">
+          <span class="nav-icon material-symbols-outlined text-[24px] text-on-surface-variant">group</span>
+          <span class="nav-label font-label-sm text-label-sm text-on-surface-variant">People</span>
+        </button>
+        <button
+          class="bottom-nav-item flex flex-col items-center gap-0.5 px-4 py-2 min-w-[60px] active:scale-95 transition-transform"
+          data-page="interviews">
+          <span class="nav-icon material-symbols-outlined text-[24px] text-on-surface-variant">calendar_month</span>
+          <span class="nav-label font-label-sm text-label-sm text-on-surface-variant">Interviews</span>
+        </button>
+        <button
+          class="bottom-nav-item flex flex-col items-center gap-0.5 px-4 py-2 min-w-[60px] active:scale-95 transition-transform"
+          data-page="job-offers">
+          <span class="nav-icon material-symbols-outlined text-[24px] text-on-surface-variant">local_offer</span>
+          <span class="nav-label font-label-sm text-label-sm text-on-surface-variant">Offers</span>
+        </button>
+        <button
+          class="bottom-nav-item flex flex-col items-center gap-0.5 px-4 py-2 min-w-[60px] active:scale-95 transition-transform"
+          data-page="settings">
+          <span class="nav-icon material-symbols-outlined text-[24px] text-on-surface-variant">settings</span>
+          <span class="nav-label font-label-sm text-label-sm text-on-surface-variant">Settings</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- App Router & Core JS -->
+
+  <!-- Firebase SDK -->
+</body>
+
+</html>
