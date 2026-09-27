@@ -134,6 +134,23 @@ function buildLayout(c, interviews, notes) {
             </div>` : ''}
           </div>
 
+          ${c.rawFormResponses && typeof c.rawFormResponses === 'object' ? `
+          <!-- Google Form Raw Spreadsheet Responses -->
+          <div class="bg-surface-container-lowest p-space-xl rounded-xl shadow-sm">
+            <div class="flex items-center gap-space-sm mb-space-lg">
+              <span class="material-symbols-outlined text-purple-600 text-[24px]">description</span>
+              <span class="font-headline-sm text-headline-sm text-on-surface">Google Spreadsheet Responses (Exact Entry)</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md bg-surface-container-low p-space-lg rounded-xl">
+              ${Object.entries(c.rawFormResponses).map(([key, val]) => `
+                <div class="flex flex-col gap-0.5 bg-surface-container-lowest p-space-md rounded-lg shadow-2xs">
+                  <span class="font-label-sm text-label-sm text-outline font-medium">${key}</span>
+                  <span class="font-body-md text-body-md text-on-surface font-semibold">${val !== null && val !== undefined && val !== '' ? (typeof val === 'object' ? JSON.stringify(val) : val) : '—'}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>` : ''}
+
           <!-- Interview History -->
           <div class="bg-surface-container-lowest p-space-xl rounded-xl shadow-sm">
             <span class="font-headline-sm text-headline-sm text-on-surface block mb-space-lg">Interview History (${interviews.length})</span>

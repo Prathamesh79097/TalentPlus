@@ -121,6 +121,17 @@ public class GoogleFormWebhookController {
             applicantData.put("githubUrl", payload.getOrDefault("githubUrl", ""));
             applicantData.put("resumeUrl", payload.getOrDefault("resumeUrl", ""));
             applicantData.put("notes", payload.getOrDefault("notes", "Submitted via Google Form"));
+
+            // Preserve complete 1:1 spreadsheet row data
+            Object rawResponses = payload.get("rawFormResponses");
+            if (rawResponses == null) {
+                rawResponses = payload.get("formData");
+            }
+            if (rawResponses == null) {
+                rawResponses = payload;
+            }
+            applicantData.put("rawFormResponses", rawResponses);
+
             applicantData.put("source", "Google Form");
             applicantData.put("stage", "NEW");
             applicantData.put("rating", 0);
