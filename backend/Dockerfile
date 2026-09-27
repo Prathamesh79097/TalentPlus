@@ -9,5 +9,5 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /app/target/talentpulse-backend-1.0.0.jar app.jar
-EXPOSE 8081
+EXPOSE 8081 10000
 ENTRYPOINT ["java", "-jar", "app.jar"]
