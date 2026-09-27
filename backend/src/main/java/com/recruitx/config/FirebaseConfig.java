@@ -9,38 +9,68 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 
 import jakarta.annotation.PostConstruct;
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Configuration
 public class FirebaseConfig {
 
-    @Value("${firebase.project-id}")
+    @Value("${firebase.project-id:talentpulse-f1225}")
     private String projectId;
 
-
+    @Value("${FIREBASE_SERVICE_ACCOUNT_JSON:#{null}}")
+    private String serviceAccountJsonEnv;
 
     @PostConstruct
-    public void initFirebase() throws IOException {
+    public void initFirebase() {
         if (FirebaseApp.getApps().isEmpty()) {
+            GoogleCredentials credentials = null;
+
+            // 1. Try environment variable FIREBASE_SERVICE_ACCOUNT_JSON (for Render / Production)
+            if (serviceAccountJsonEnv != null && !serviceAccountJsonEnv.trim().isEmpty()) {
+                try {
+                    InputStream stream = new ByteArrayInputStream(serviceAccountJsonEnv.getBytes(StandardCharsets.UTF_8));
+                    credentials = GoogleCredentials.fromStream(stream);
+                    log.info("Loaded Firebase credentials from FIREBASE_SERVICE_ACCOUNT_JSON environment variable");
+                } catch (Exception e) {
+                    log.error("Failed to parse FIREBASE_SERVICE_ACCOUNT_JSON env var", e);
+                }
+            }
+
+            // 2. Try local classpath file firebase-service-account.json
+            if (credentials == null) {
+                try {
+                    InputStream serviceAccount = new ClassPathResource("firebase-service-account.json").getInputStream();
+                    credentials = GoogleCredentials.fromStream(serviceAccount);
+                    log.info("Loaded Firebase credentials from classpath:firebase-service-account.json");
+                } catch (Exception e) {
+                    log.warn("classpath:firebase-service-account.json not found: {}", e.getMessage());
+                }
+            }
+
+            // 3. Fallback to Application Default Credentials
+            if (credentials == null) {
+                try {
+                    credentials = GoogleCredentials.getApplicationDefault();
+                    log.info("Loaded Firebase credentials from Google Application Default Credentials");
+                } catch (Exception e) {
+                    log.warn("Google Application Default Credentials not available: {}", e.getMessage());
+                }
+            }
+
+            // Initialize app safely
             try {
-                InputStream serviceAccount = new ClassPathResource("firebase-service-account.json").getInputStream();
-                FirebaseOptions options = FirebaseOptions.builder()
-                        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                        .setProjectId(projectId)
-                        .build();
-                FirebaseApp.initializeApp(options);
-                log.info("Firebase initialized successfully for project: {}", projectId);
-            } catch (IOException e) {
-                // Fall back to application default credentials (for Cloud/CI environments)
-                log.warn("Service account file not found. Attempting application default credentials...");
-                FirebaseOptions options = FirebaseOptions.builder()
-                        .setCredentials(GoogleCredentials.getApplicationDefault())
-                        .setProjectId(projectId)
-                        .build();
-                FirebaseApp.initializeApp(options);
-                log.info("Firebase initialized with application default credentials");
+                FirebaseOptions.Builder optionsBuilder = FirebaseOptions.builder()
+                        .setProjectId(projectId);
+                if (credentials != null) {
+                    optionsBuilder.setCredentials(credentials);
+                }
+                FirebaseApp.initializeApp(optionsBuilder.build());
+                log.info("FirebaseApp initialized successfully for project: {}", projectId);
+            } catch (Exception e) {
+                log.error("Failed to initialize FirebaseApp", e);
             }
         }
     }
