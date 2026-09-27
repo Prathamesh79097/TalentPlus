@@ -41,28 +41,52 @@ public class GoogleFormWebhookController {
         }
 
         try {
-            // Extract required fields
-            String jobId = (String) payload.get("jobId");
+            // Extract raw spreadsheet response map
+            Map<String, Object> rawMap = extractRawMap(payload);
+            Map<String, Object> cleanRawResponses = cleanRawResponses(rawMap);
+
+            // Extract required email field
             String email = (String) payload.get("email");
+            if (email == null || email.trim().isEmpty()) {
+                email = findInMap(rawMap, "email", "mail", "e-mail");
+            }
 
             if (email == null || email.trim().isEmpty()) {
                 return ResponseEntity.badRequest()
-                        .body(Map.of("error", "Missing required field: email"));
+                        .body(Map.of("error", "Missing required field: email. Please ensure your Google Form includes an Email field."));
             }
 
             email = email.trim().toLowerCase();
+            String jobId = (String) payload.get("jobId");
 
-            // Resolve name fields
+            // Extract name fields
             String firstName = (String) payload.getOrDefault("firstName", "");
             String lastName = (String) payload.getOrDefault("lastName", "");
+
             if ((firstName == null || firstName.trim().isEmpty()) && payload.containsKey("name")) {
                 String fullName = ((String) payload.get("name")).trim();
                 String[] parts = fullName.split("\\s+", 2);
                 firstName = parts[0];
                 lastName = parts.length > 1 ? parts[1] : "";
             }
+
+            if (firstName == null || firstName.trim().isEmpty()) {
+                String foundName = findInMap(rawMap, "full name", "first name", "applicant name", "candidate name", "name");
+                if (!foundName.isEmpty()) {
+                    String[] parts = foundName.split("\\s+", 2);
+                    firstName = parts[0];
+                    lastName = parts.length > 1 ? parts[1] : "";
+                }
+            }
+
             if (firstName == null || firstName.trim().isEmpty()) {
                 firstName = "Applicant";
+            }
+
+            // Phone
+            String phone = (String) payload.getOrDefault("phone", "");
+            if (phone == null || phone.trim().isEmpty()) {
+                phone = findInMap(rawMap, "phone", "mobile", "contact", "number");
             }
 
             // Lookup Job Title if jobId provided
@@ -103,34 +127,54 @@ public class GoogleFormWebhookController {
                     if (!p.trim().isEmpty()) skillsList.add(p.trim());
                 }
             }
+            if (skillsList.isEmpty()) {
+                String foundSkills = findInMap(rawMap, "skill", "technologies", "expertise");
+                if (!foundSkills.isEmpty()) {
+                    for (String p : foundSkills.split(",")) {
+                        if (!p.trim().isEmpty()) skillsList.add(p.trim());
+                    }
+                }
+            }
+
+            // Years of experience
+            Object expObj = payload.getOrDefault("yearsExperience", 0);
+            int yearsExp = 0;
+            if (expObj instanceof Number) {
+                yearsExp = ((Number) expObj).intValue();
+            } else {
+                String foundExp = findInMap(rawMap, "experience", "years of experience");
+                try {
+                    yearsExp = Integer.parseInt(foundExp.replaceAll("[^0-9]", ""));
+                } catch (Exception ignored) {}
+            }
+
+            // Other fields
+            String education = getOrFind(payload, rawMap, "education", "degree", "qualification");
+            String currentCompany = getOrFind(payload, rawMap, "currentCompany", "company", "organization");
+            String linkedinUrl = getOrFind(payload, rawMap, "linkedinUrl", "linkedin");
+            String githubUrl = getOrFind(payload, rawMap, "githubUrl", "github", "portfolio");
+            String resumeUrl = getOrFind(payload, rawMap, "resumeUrl", "resume", "cv");
 
             // Build applicant object for Firestore
             Map<String, Object> applicantData = new HashMap<>();
             applicantData.put("firstName", firstName);
             applicantData.put("lastName", lastName);
             applicantData.put("email", email);
-            applicantData.put("phone", payload.getOrDefault("phone", ""));
+            applicantData.put("phone", phone);
             applicantData.put("jobId", jobId != null ? jobId : "");
             applicantData.put("jobTitle", jobTitle);
             applicantData.put("appliedRole", jobTitle);
             applicantData.put("skills", skillsList);
-            applicantData.put("yearsExperience", payload.getOrDefault("yearsExperience", 0));
-            applicantData.put("education", payload.getOrDefault("education", ""));
-            applicantData.put("currentCompany", payload.getOrDefault("currentCompany", ""));
-            applicantData.put("linkedinUrl", payload.getOrDefault("linkedinUrl", ""));
-            applicantData.put("githubUrl", payload.getOrDefault("githubUrl", ""));
-            applicantData.put("resumeUrl", payload.getOrDefault("resumeUrl", ""));
+            applicantData.put("yearsExperience", yearsExp);
+            applicantData.put("education", education);
+            applicantData.put("currentCompany", currentCompany);
+            applicantData.put("linkedinUrl", linkedinUrl);
+            applicantData.put("githubUrl", githubUrl);
+            applicantData.put("resumeUrl", resumeUrl);
             applicantData.put("notes", payload.getOrDefault("notes", "Submitted via Google Form"));
 
-            // Preserve complete 1:1 spreadsheet row data
-            Object rawResponses = payload.get("rawFormResponses");
-            if (rawResponses == null) {
-                rawResponses = payload.get("formData");
-            }
-            if (rawResponses == null) {
-                rawResponses = payload;
-            }
-            applicantData.put("rawFormResponses", rawResponses);
+            // Store complete 1:1 spreadsheet row data as rawFormResponses
+            applicantData.put("rawFormResponses", cleanRawResponses);
 
             applicantData.put("source", "Google Form");
             applicantData.put("stage", "NEW");
@@ -153,4 +197,73 @@ public class GoogleFormWebhookController {
                     .body(Map.of("error", "Internal Server Error: " + e.getMessage()));
         }
     }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> extractRawMap(Map<String, Object> payload) {
+        if (payload.get("rawFormResponses") instanceof Map<?, ?>) {
+            return (Map<String, Object>) payload.get("rawFormResponses");
+        }
+        if (payload.get("formData") instanceof Map<?, ?>) {
+            return (Map<String, Object>) payload.get("formData");
+        }
+        if (payload.get("namedValues") instanceof Map<?, ?>) {
+            return (Map<String, Object>) payload.get("namedValues");
+        }
+        // Fallback: exclude technical keys
+        Map<String, Object> fallback = new LinkedHashMap<>(payload);
+        fallback.remove("jobId");
+        fallback.remove("source");
+        fallback.remove("notes");
+        return fallback;
+    }
+
+    private Map<String, Object> cleanRawResponses(Map<String, Object> rawMap) {
+        Map<String, Object> cleaned = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> entry : rawMap.entrySet()) {
+            String key = entry.getKey();
+            Object val = entry.getValue();
+            if (val instanceof List<?>) {
+                List<?> list = (List<?>) val;
+                if (list.isEmpty()) {
+                    cleaned.put(key, "");
+                } else if (list.size() == 1) {
+                    cleaned.put(key, list.get(0) != null ? list.get(0).toString() : "");
+                } else {
+                    cleaned.put(key, String.join(", ", list.stream().filter(Objects::nonNull).map(Object::toString).toArray(String[]::new)));
+                }
+            } else if (val != null) {
+                cleaned.put(key, val.toString());
+            } else {
+                cleaned.put(key, "");
+            }
+        }
+        return cleaned;
+    }
+
+    private String getOrFind(Map<String, Object> payload, Map<String, Object> rawMap, String payloadKey, String... keywords) {
+        String val = (String) payload.get(payloadKey);
+        if (val != null && !val.trim().isEmpty()) {
+            return val.trim();
+        }
+        return findInMap(rawMap, keywords);
+    }
+
+    private String findInMap(Map<String, Object> map, String... keywords) {
+        for (String kw : keywords) {
+            String target = kw.toLowerCase();
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                String k = entry.getKey().toLowerCase();
+                if (k.contains(target)) {
+                    Object v = entry.getValue();
+                    if (v instanceof List<?> && !((List<?>) v).isEmpty()) {
+                        return ((List<?>) v).get(0).toString().trim();
+                    } else if (v != null) {
+                        return v.toString().trim();
+                    }
+                }
+            }
+        }
+        return "";
+    }
 }
+

@@ -420,6 +420,13 @@ function onFormSubmit(e) {
   }
   const itemResponses = e.namedValues;
   
+  // Build 1:1 raw spreadsheet response object (preserves all headers & values)
+  const rawFormResponses = {};
+  for (let key in itemResponses) {
+    const val = itemResponses[key];
+    rawFormResponses[key] = Array.isArray(val) ? val.join(", ") : (val || "");
+  }
+
   const payload = {
     jobId: JOB_ID,
     firstName: getVal(itemResponses, ["First Name", "First name", "Name", "Full Name"]) || "Applicant",
@@ -434,7 +441,8 @@ function onFormSubmit(e) {
     githubUrl: getVal(itemResponses, ["GitHub", "GitHub URL", "Portfolio"]),
     resumeUrl: getVal(itemResponses, ["Resume", "CV", "Upload Resume", "Resume Link"]),
     source: "Google Form",
-    notes: "Submitted via Google Form on " + new Date().toLocaleString()
+    notes: "Submitted via Google Form on " + new Date().toLocaleString(),
+    rawFormResponses: rawFormResponses
   };
 
   const options = {
