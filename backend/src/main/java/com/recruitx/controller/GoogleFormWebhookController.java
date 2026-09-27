@@ -89,28 +89,31 @@ public class GoogleFormWebhookController {
                 phone = findInMap(rawMap, "phone", "mobile", "contact", "number");
             }
 
-            // Lookup Job Title if jobId provided
+            // Fallback job lookup if jobId is missing
+            if (jobId == null || jobId.trim().isEmpty()) {
+                jobId = findInMap(rawMap, "jobid", "job_id", "job id", "job");
+            }
+
+            // Lookup Job Title & match job
             String jobTitle = "General Application";
             if (jobId != null && !jobId.trim().isEmpty()) {
                 Optional<Map<String, Object>> jobOpt = db.findById("jobs", jobId);
                 if (jobOpt.isPresent()) {
                     jobTitle = (String) jobOpt.get().getOrDefault("title", "General Application");
                 }
-            }
-
-            // Check for duplicate application (same email & same jobId)
-            List<Map<String, Object>> existingApplicants = db.findAll("applicants");
-            for (Map<String, Object> existing : existingApplicants) {
-                String exEmail = (String) existing.get("email");
-                String exJobId = (String) existing.get("jobId");
-                if (email.equalsIgnoreCase(exEmail) && (jobId == null || jobId.equals(exJobId))) {
-                    log.info("Duplicate applicant skipped for email {} and jobId {}", email, jobId);
-                    return ResponseEntity.ok(Map.of(
-                            "success", true,
-                            "duplicate", true,
-                            "applicantId", existing.getOrDefault("id", ""),
-                            "message", "Duplicate application received. Existing candidate record preserved."
-                    ));
+            } else {
+                // Try matching open job by title or role from form responses
+                String formRole = findInMap(rawMap, "applied role", "role", "position", "job title", "title");
+                if (!formRole.isEmpty()) {
+                    List<Map<String, Object>> jobs = db.findAll("jobs");
+                    for (Map<String, Object> j : jobs) {
+                        String title = (String) j.getOrDefault("title", "");
+                        if (title.equalsIgnoreCase(formRole) || title.toLowerCase().contains(formRole.toLowerCase())) {
+                            jobId = (String) j.get("id");
+                            jobTitle = title;
+                            break;
+                        }
+                    }
                 }
             }
 
@@ -155,7 +158,56 @@ public class GoogleFormWebhookController {
             String githubUrl = getOrFind(payload, rawMap, "githubUrl", "github", "portfolio");
             String resumeUrl = getOrFind(payload, rawMap, "resumeUrl", "resume", "cv");
 
-            // Build applicant object for Firestore
+            // Check if applicant with same email and same jobId already exists
+            Map<String, Object> existingApplicant = null;
+            List<Map<String, Object>> existingApplicants = db.findAll("applicants");
+            for (Map<String, Object> existing : existingApplicants) {
+                String exEmail = (String) existing.get("email");
+                String exJobId = (String) existing.get("jobId");
+                if (email.equalsIgnoreCase(exEmail) && (jobId == null || jobId.trim().isEmpty() || jobId.equals(exJobId))) {
+                    existingApplicant = existing;
+                    break;
+                }
+            }
+
+            if (existingApplicant != null) {
+                // UPDATE existing applicant record with latest submitted information
+                String applicantId = (String) existingApplicant.get("id");
+                log.info("Updating existing applicant {} with latest Google Form response", applicantId);
+
+                Map<String, Object> updateData = new HashMap<>();
+                if (!firstName.isEmpty() && !"Applicant".equals(firstName)) updateData.put("firstName", firstName);
+                if (!lastName.isEmpty()) updateData.put("lastName", lastName);
+                if (!phone.isEmpty()) updateData.put("phone", phone);
+                if (!skillsList.isEmpty()) updateData.put("skills", skillsList);
+                if (yearsExp > 0) updateData.put("yearsExperience", yearsExp);
+                if (!education.isEmpty()) updateData.put("education", education);
+                if (!currentCompany.isEmpty()) updateData.put("currentCompany", currentCompany);
+                if (!linkedinUrl.isEmpty()) updateData.put("linkedinUrl", linkedinUrl);
+                if (!githubUrl.isEmpty()) updateData.put("githubUrl", githubUrl);
+                if (!resumeUrl.isEmpty()) updateData.put("resumeUrl", resumeUrl);
+
+                // Merge rawFormResponses
+                @SuppressWarnings("unchecked")
+                Map<String, Object> mergedResponses = (Map<String, Object>) existingApplicant.getOrDefault("rawFormResponses", new HashMap<>());
+                mergedResponses.putAll(cleanRawResponses);
+                updateData.put("rawFormResponses", mergedResponses);
+                updateData.put("notes", "Updated via Google Form on " + Instant.now().toString());
+
+                db.update("applicants", applicantId, updateData);
+
+                // Update job applicant count
+                updateJobApplicantCount(jobId);
+
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "updated", true,
+                        "applicantId", applicantId,
+                        "message", "Existing candidate record updated with latest information."
+                ));
+            }
+
+            // Build new applicant object for Firestore
             Map<String, Object> applicantData = new HashMap<>();
             applicantData.put("firstName", firstName);
             applicantData.put("lastName", lastName);
@@ -184,6 +236,9 @@ public class GoogleFormWebhookController {
             Map<String, Object> created = db.create("applicants", applicantData);
             log.info("Successfully created applicant {} via Google Form webhook", created.get("id"));
 
+            // Update job applicant count
+            updateJobApplicantCount(jobId);
+
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "duplicate", false,
@@ -195,6 +250,26 @@ public class GoogleFormWebhookController {
             log.error("Error processing Google Form webhook payload", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal Server Error: " + e.getMessage()));
+        }
+    }
+
+    private void updateJobApplicantCount(String jobId) {
+        if (jobId == null || jobId.trim().isEmpty()) return;
+        try {
+            long totalCount = db.countByField("applicants", "jobId", jobId);
+            Optional<Map<String, Object>> jobOpt = db.findById("jobs", jobId);
+            if (jobOpt.isPresent()) {
+                long newCount = db.findAll("applicants").stream()
+                        .filter(a -> jobId.equals(a.get("jobId")) && "NEW".equals(a.get("stage")))
+                        .count();
+                db.update("jobs", jobId, Map.of(
+                        "applicantCount", totalCount,
+                        "newApplicants", newCount
+                ));
+                log.info("Updated job {} stats: total count = {}, new = {}", jobId, totalCount, newCount);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to update applicant count for job {}: {}", jobId, e.getMessage());
         }
     }
 
