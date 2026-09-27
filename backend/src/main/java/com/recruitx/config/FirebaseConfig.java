@@ -61,16 +61,19 @@ public class FirebaseConfig {
             }
 
             // Initialize app safely
-            try {
-                FirebaseOptions.Builder optionsBuilder = FirebaseOptions.builder()
-                        .setProjectId(projectId);
-                if (credentials != null) {
-                    optionsBuilder.setCredentials(credentials);
+            if (credentials != null) {
+                try {
+                    FirebaseOptions options = FirebaseOptions.builder()
+                            .setProjectId(projectId)
+                            .setCredentials(credentials)
+                            .build();
+                    FirebaseApp.initializeApp(options);
+                    log.info("FirebaseApp initialized successfully for project: {}", projectId);
+                } catch (Exception e) {
+                    log.error("Failed to initialize FirebaseApp with credentials", e);
                 }
-                FirebaseApp.initializeApp(optionsBuilder.build());
-                log.info("FirebaseApp initialized successfully for project: {}", projectId);
-            } catch (Exception e) {
-                log.error("Failed to initialize FirebaseApp", e);
+            } else {
+                log.error("CRITICAL WARNING: No Firebase credentials found! Please add the FIREBASE_SERVICE_ACCOUNT_JSON environment variable in Render Environment Settings.");
             }
         }
     }
