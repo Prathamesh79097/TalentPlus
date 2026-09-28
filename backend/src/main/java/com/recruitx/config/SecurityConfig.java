@@ -32,6 +32,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers(HttpMethod.DELETE, "/api/applicants/all").permitAll()
                 .requestMatchers("/actuator/health", "/api/webhooks/**", "/api/applicants/all", "/error").permitAll()
                 .anyRequest().authenticated()
             )
