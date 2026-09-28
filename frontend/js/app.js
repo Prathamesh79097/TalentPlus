@@ -18,11 +18,25 @@ window.showToast = (message, type = 'info', duration = 3500) => {
   setTimeout(() => toast.remove(), duration);
 };
 
+// Warm up Render backend immediately when app loads
+if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+  fetch(`${API_BASE}/jobs?status=OPEN`, { method: 'GET' }).catch(() => {});
+}
+
 // ── API Helper ────────────────────────────────────────────────────
 window.api = {
   async request(endpoint, options = {}) {
     const user = window.currentUser;
     const token = user ? await user.getIdToken() : null;
+    
+    // Cold start notification timer for free tier hosting
+    const timeoutId = setTimeout(() => {
+      if (window.showToast && !window._coldStartNotified) {
+        window._coldStartNotified = true;
+        window.showToast('Backend server spinning up... Please wait a few seconds', 'info', 6000);
+      }
+    }, 3000);
+
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -35,6 +49,7 @@ window.api = {
     }
     try {
       const res = await fetch(`${API_BASE}${endpoint}`, config);
+      clearTimeout(timeoutId);
       if (!res.ok) {
         const err = await res.json().catch(() => ({ message: res.statusText }));
         throw new Error(err.message || 'Request failed');
@@ -42,6 +57,7 @@ window.api = {
       if (res.status === 204) return null;
       return res.json();
     } catch (e) {
+      clearTimeout(timeoutId);
       console.error('[API]', endpoint, e);
       throw e;
     }

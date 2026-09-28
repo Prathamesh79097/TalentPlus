@@ -30,10 +30,16 @@ function buildLayout(applicants, jobs, selectedJobId) {
           <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Applicants</h1>
           <p class="font-body-md text-body-md text-on-surface-variant">${applicants.length} candidates across all open roles</p>
         </div>
-        <button id="add-applicant-btn" class="h-10 px-space-lg flex items-center gap-space-xs rounded-lg bg-primary text-on-primary font-body-sm text-body-sm font-semibold hover:bg-secondary transition-all shadow-md">
-          <span class="material-symbols-outlined text-[18px]">person_add</span>
-          <span>Add Candidate</span>
-        </button>
+        <div class="flex items-center gap-space-sm">
+          <button id="clear-all-applicants-btn" class="h-10 px-space-md flex items-center gap-space-xs rounded-lg border border-error/30 text-error hover:bg-error-container/30 transition-colors font-body-sm text-body-sm">
+            <span class="material-symbols-outlined text-[18px]">delete_sweep</span>
+            <span>Clear All Applicants</span>
+          </button>
+          <button id="add-applicant-btn" class="h-10 px-space-lg flex items-center gap-space-xs rounded-lg bg-primary text-on-primary font-body-sm text-body-sm font-semibold hover:bg-secondary transition-all shadow-md">
+            <span class="material-symbols-outlined text-[18px]">person_add</span>
+            <span>Add Candidate</span>
+          </button>
+        </div>
       </div>
 
       <!-- Filters -->
@@ -266,6 +272,18 @@ function attachEvents(container, jobs) {
     container.querySelector(`#${id}`)?.addEventListener('click', () => {
       window.openModal(renderApplicantForm(jobs));
       attachApplicantFormSubmit(jobs);
+    });
+  });
+
+  container.querySelector('#clear-all-applicants-btn')?.addEventListener('click', () => {
+    window.confirmDialog('Are you sure you want to remove ALL current applicants? This action cannot be undone.', async () => {
+      try {
+        await window.api.delete('/applicants/all');
+        window.showToast('All current applicants removed successfully!', 'success');
+        window.loadPage('applicants');
+      } catch {
+        window.showToast('Failed to clear applicants', 'error');
+      }
     });
   });
 

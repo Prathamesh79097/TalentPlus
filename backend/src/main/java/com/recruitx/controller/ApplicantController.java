@@ -112,6 +112,39 @@ public class ApplicantController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/all")
+    public ResponseEntity<Map<String, Object>> deleteAllApplicants() throws Exception {
+        List<Map<String, Object>> applicants = db.findAll(COLLECTION);
+        int deletedCount = 0;
+        for (Map<String, Object> a : applicants) {
+            String id = (String) a.get("id");
+            if (id != null) {
+                db.delete(COLLECTION, id);
+                deletedCount++;
+            }
+        }
+
+        // Reset applicant counts for all jobs
+        try {
+            List<Map<String, Object>> jobs = db.findAll("jobs");
+            for (Map<String, Object> job : jobs) {
+                String jobId = (String) job.get("id");
+                if (jobId != null) {
+                    db.update("jobs", jobId, Map.of(
+                        "applicantCount", 0,
+                        "newApplicants", 0
+                    ));
+                }
+            }
+        } catch (Exception ignored) {}
+
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "deletedApplicants", deletedCount,
+            "message", "All current applicants removed successfully and job counts reset."
+        ));
+    }
+
     // ── Notes subcollection ──────────────────────────────────────────
 
     @GetMapping("/{id}/notes")
