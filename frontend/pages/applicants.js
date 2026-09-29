@@ -12,8 +12,8 @@ export async function render(container, params = {}) {
       window.api.get('/jobs?status=OPEN'),
     ]);
   } catch {
-    applicants = getDemoApplicants();
-    jobs = [{ id: '1', title: 'Sr. React Engineer' }, { id: '2', title: 'Product Manager' }, { id: '3', title: 'DevOps Lead' }];
+    applicants = [];
+    jobs = [];
   }
 
   container.innerHTML = buildLayout(applicants, jobs, params.jobId);
@@ -384,14 +384,5 @@ function attachApplicantFormSubmit(jobs) {
 }
 
 function getDemoApplicants() {
-  const stages = ['NEW', 'SCREENING', 'INTERVIEW', 'SELECTION', 'OFFER', 'HIRED', 'REJECTED'];
-  return [
-    { id: '1', firstName: 'Alex', lastName: 'Rivera', email: 'alex@email.com', jobTitle: 'Sr. React Engineer', stage: 'INTERVIEW', rating: 4, appliedDate: new Date(Date.now()-3*86400000).toISOString() },
-    { id: '2', firstName: 'Priya', lastName: 'Sharma', email: 'priya@email.com', jobTitle: 'Product Manager', stage: 'SCREENING', rating: 3.5, appliedDate: new Date(Date.now()-5*86400000).toISOString() },
-    { id: '3', firstName: 'Marcus', lastName: 'Chen', email: 'marcus@email.com', jobTitle: 'DevOps Lead', stage: 'OFFER', rating: 4.5, appliedDate: new Date(Date.now()-7*86400000).toISOString() },
-    { id: '4', firstName: 'Jennifer', lastName: 'Kim', email: 'jennifer@email.com', jobTitle: 'Backend Engineer', stage: 'HIRED', rating: 5, appliedDate: new Date(Date.now()-14*86400000).toISOString() },
-    { id: '5', firstName: 'Ryan', lastName: 'Patel', email: 'ryan@email.com', jobTitle: 'Sr. React Engineer', stage: 'NEW', rating: 2, appliedDate: new Date(Date.now()-1*86400000).toISOString() },
-    { id: '6', firstName: 'Sofia', lastName: 'Martinez', email: 'sofia@email.com', jobTitle: 'UX Designer', stage: 'SELECTION', rating: 4, appliedDate: new Date(Date.now()-6*86400000).toISOString() },
-    { id: '7', firstName: 'James', lastName: 'Wong', email: 'james@email.com', jobTitle: 'Security Analyst', stage: 'REJECTED', rating: 2, appliedDate: new Date(Date.now()-10*86400000).toISOString() },
-  ];
+  return [];
 }

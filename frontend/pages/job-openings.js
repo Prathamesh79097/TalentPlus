@@ -401,8 +401,8 @@ function attachEvents(container) {
       job = { id: jobId, title: 'Job Requisition', googleFormUrl: '' };
     }
 
-    const backendBase = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'https://chilly-readers-post.loca.lt'
+    const backendBase = window.BACKEND_API_URL 
+      ? window.BACKEND_API_URL.replace(/\/api\/?$/, '') 
       : 'https://talentplus.onrender.com';
     const webhookUrl = `${backendBase}/api/webhooks/google-form`;
     const appsScriptCode = `// ─────────────────────────────────────────────────────────────
@@ -414,36 +414,62 @@ const WEBHOOK_SECRET = "talentpulse-secret-key";
 const JOB_ID = "${job.id}";
 
 function onFormSubmit(e) {
-  if (!e || !e.namedValues) {
-    Logger.log("No form submit values found.");
+  Logger.log("onFormSubmit triggered: " + JSON.stringify(e));
+  let itemResponses = {};
+
+  if (e && e.namedValues) {
+    itemResponses = e.namedValues;
+  } else if (e && e.response && typeof e.response.getItemResponses === "function") {
+    const resps = e.response.getItemResponses();
+    for (let i = 0; i < resps.length; i++) {
+      const item = resps[i];
+      itemResponses[item.getItem().getTitle()] = [item.getResponse()];
+    }
+    if (e.response.getRespondentEmail) {
+      itemResponses["Email"] = [e.response.getRespondentEmail()];
+    }
+  } else {
+    // Fallback: Read the last row of the active sheet
+    Logger.log("No event payload found. Reading latest row from active sheet...");
+    itemResponses = getLatestRowAsNamedValues();
+  }
+
+  if (!itemResponses || Object.keys(itemResponses).length === 0) {
+    Logger.log("Error: Could not find any form/sheet values.");
     return;
   }
-  const itemResponses = e.namedValues;
-  
-  // Build 1:1 raw spreadsheet response object (preserves all headers & values)
+
+  // Build 1:1 raw spreadsheet response object
   const rawFormResponses = {};
   for (let key in itemResponses) {
     const val = itemResponses[key];
     rawFormResponses[key] = Array.isArray(val) ? val.join(", ") : (val || "");
   }
 
+  const emailVal = getVal(itemResponses, ["Email", "Email Address", "Email address", "mail"]);
+  if (!emailVal) {
+    Logger.log("Warning: No Email field found in submission. Submission might be rejected by backend.");
+  }
+
   const payload = {
     jobId: JOB_ID,
-    firstName: getVal(itemResponses, ["First Name", "First name", "Name", "Full Name"]) || "Applicant",
+    firstName: getVal(itemResponses, ["First Name", "First name", "Name", "Full Name", "Applicant Name", "Candidate Name"]) || "Applicant",
     lastName: getVal(itemResponses, ["Last Name", "Last name", "Surname"]) || "",
-    email: getVal(itemResponses, ["Email", "Email Address", "Email address"]),
-    phone: getVal(itemResponses, ["Phone", "Phone Number", "Mobile", "Contact Number"]),
-    skills: parseSkills(getVal(itemResponses, ["Skills", "Required Skills", "Key Skills"])),
-    yearsExperience: parseInt(getVal(itemResponses, ["Experience", "Years of Experience"])) || 0,
+    email: emailVal,
+    phone: getVal(itemResponses, ["Phone", "Phone Number", "Mobile", "Contact Number", "Contact"]),
+    skills: parseSkills(getVal(itemResponses, ["Skills", "Required Skills", "Key Skills", "Technical Skills"])),
+    yearsExperience: parseInt(getVal(itemResponses, ["Experience", "Years of Experience", "Total Experience"])) || 0,
     education: getVal(itemResponses, ["Education", "Degree", "Qualification"]),
-    currentCompany: getVal(itemResponses, ["Current Company", "Company"]),
+    currentCompany: getVal(itemResponses, ["Current Company", "Company", "Organization"]),
     linkedinUrl: getVal(itemResponses, ["LinkedIn", "LinkedIn URL", "LinkedIn Profile"]),
     githubUrl: getVal(itemResponses, ["GitHub", "GitHub URL", "Portfolio"]),
-    resumeUrl: getVal(itemResponses, ["Resume", "CV", "Upload Resume", "Resume Link"]),
+    resumeUrl: getVal(itemResponses, ["Resume", "CV", "Upload Resume", "Resume Link", "Drive Link"]),
     source: "Google Form",
-    notes: "Submitted via Google Form on " + new Date().toLocaleString(),
+    notes: "Submitted via Google Form / Sheet on " + new Date().toLocaleString(),
     rawFormResponses: rawFormResponses
   };
+
+  Logger.log("Sending payload to backend: " + JSON.stringify(payload));
 
   const options = {
     method: "post",
@@ -455,16 +481,46 @@ function onFormSubmit(e) {
 
   try {
     const res = UrlFetchApp.fetch(WEBHOOK_URL, options);
-    Logger.log("Response: " + res.getContentText());
+    const code = res.getResponseCode();
+    const text = res.getContentText();
+    Logger.log("Backend Response Code: " + code);
+    Logger.log("Backend Response Body: " + text);
   } catch (err) {
-    Logger.log("Error sending webhook: " + err.toString());
+    Logger.log("Network error sending webhook: " + err.toString());
+  }
+}
+
+// ── Helper to test-send the latest row manually from Apps Script ──
+function testSendLatestRow() {
+  onFormSubmit(null);
+}
+
+function getLatestRowAsNamedValues() {
+  try {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    const lastRow = sheet.getLastRow();
+    const lastCol = sheet.getLastColumn();
+    if (lastRow < 2 || lastCol < 1) return {};
+    const headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    const rowValues = sheet.getRange(lastRow, 1, 1, lastCol).getValues()[0];
+    const namedValues = {};
+    for (let i = 0; i < headers.length; i++) {
+      const header = (headers[i] || "").toString().trim();
+      if (header) {
+        namedValues[header] = [rowValues[i] !== undefined && rowValues[i] !== null ? rowValues[i].toString() : ""];
+      }
+    }
+    return namedValues;
+  } catch (err) {
+    Logger.log("Error reading latest row: " + err.toString());
+    return {};
   }
 }
 
 function getVal(responses, keys) {
   for (let k of keys) {
     for (let key in responses) {
-      if (key.toLowerCase().includes(k.toLowerCase())) {
+      if (key.toLowerCase().trim().includes(k.toLowerCase().trim())) {
         const val = responses[key];
         return Array.isArray(val) ? val[0] : val;
       }

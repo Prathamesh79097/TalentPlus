@@ -1,4 +1,4 @@
-async function m(e){let a=[];try{a=await window.api.get("/applicants?stages=NEW,SCREENING")}catch{a=p()}e.innerHTML=l(a),d(e)}function l(e){const a={NEW:[],SCREENING:[],SHORTLISTED:[],REJECTED:[]};return e.forEach(t=>{const s=t.stage?.toUpperCase()||"NEW";a[s]?a[s].push(t):a.NEW.push(t)}),`
+async function p(e){let s=[];try{s=await window.api.get("/applicants?stages=NEW,SCREENING,SHORTLISTED,REJECTED")}catch{s=[]}e.innerHTML=o(s),c(e)}function o(e){const s={NEW:[],SCREENING:[],SHORTLISTED:[],REJECTED:[]};return e.forEach(t=>{const a=t.stage?.toUpperCase()||"NEW";s[a]?s[a].push(t):s.NEW.push(t)}),`
   <!-- ═══ DESKTOP ═══ -->
   <div class="hidden lg:block p-8 max-w-7xl mx-auto w-full">
     <div class="flex flex-col gap-space-xl">
@@ -17,10 +17,10 @@ async function m(e){let a=[];try{a=await window.api.get("/applicants?stages=NEW,
 
       <!-- Screening Columns (Kanban) -->
       <div class="grid grid-cols-4 gap-space-lg items-start">
-        ${i("New Applications",a.NEW,"NEW","primary-container","text-on-primary-container")}
-        ${i("Under Screening",a.SCREENING,"SCREENING","secondary-container","text-on-secondary")}
-        ${i("Shortlisted",a.SHORTLISTED,"SHORTLISTED","status-hired-bg","text-status-hired")}
-        ${i("Rejected",a.REJECTED,"REJECTED","error-container","text-error")}
+        ${i("New Applications",s.NEW,"NEW","primary-container","text-on-primary-container")}
+        ${i("Under Screening",s.SCREENING,"SCREENING","secondary-container","text-on-secondary")}
+        ${i("Shortlisted",s.SHORTLISTED,"SHORTLISTED","status-hired-bg","text-status-hired")}
+        ${i("Rejected",s.REJECTED,"REJECTED","error-container","text-error")}
       </div>
     </div>
   </div>
@@ -39,27 +39,27 @@ async function m(e){let a=[];try{a=await window.api.get("/applicants?stages=NEW,
 
     <!-- Stage tabs -->
     <div class="flex gap-space-sm overflow-x-auto no-scrollbar -mx-margin px-margin">
-      ${[["All",""],["New","NEW"],["Screening","SCREENING"],["Shortlisted","SHORTLISTED"],["Rejected","REJECTED"]].map(([t,s],n)=>`
-        <button class="screen-tab shrink-0 px-space-md py-space-xs rounded-full font-label-md text-label-md transition-all ${n===0?"bg-primary text-on-primary":"bg-surface-container-lowest text-on-surface-variant border border-outline-variant/40"}" data-stage="${s}">${t}</button>
+      ${[["All",""],["New","NEW"],["Screening","SCREENING"],["Shortlisted","SHORTLISTED"],["Rejected","REJECTED"]].map(([t,a],n)=>`
+        <button class="screen-tab shrink-0 px-space-md py-space-xs rounded-full font-label-md text-label-md transition-all ${n===0?"bg-primary text-on-primary":"bg-surface-container-lowest text-on-surface-variant border border-outline-variant/40"}" data-stage="${a}">${t}</button>
       `).join("")}
     </div>
 
     <div id="screening-mobile-list" class="flex flex-col gap-space-md">
-      ${e.map(t=>c(t)).join("")}
+      ${e.map(t=>d(t)).join("")}
     </div>
-  </div>`}function i(e,a,t,s,n){return`
+  </div>`}function i(e,s,t,a,n){return`
   <div class="flex flex-col gap-space-md" data-stage="${t}">
-    <div class="flex items-center justify-between p-space-md rounded-xl bg-${s}">
+    <div class="flex items-center justify-between p-space-md rounded-xl bg-${a}">
       <span class="font-headline-sm text-headline-sm ${n}">${e}</span>
-      <span class="font-label-sm text-label-sm ${n} bg-white/20 px-2 py-0.5 rounded-full font-semibold">${a.length}</span>
+      <span class="font-label-sm text-label-sm ${n} bg-white/20 px-2 py-0.5 rounded-full font-semibold">${s.length}</span>
     </div>
     <div class="flex flex-col gap-space-md min-h-[200px]">
-      ${a.map(r=>o(r)).join("")}
-      ${a.length===0?`<div class="flex items-center justify-center h-24 rounded-xl border-2 border-dashed border-outline-variant/40 text-on-surface-variant">
+      ${s.map(r=>l(r)).join("")}
+      ${s.length===0?`<div class="flex items-center justify-center h-24 rounded-xl border-2 border-dashed border-outline-variant/40 text-on-surface-variant">
         <span class="font-body-sm text-body-sm text-outline">No candidates</span>
       </div>`:""}
     </div>
-  </div>`}function o(e){return`
+  </div>`}function l(e){return`
   <div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer" onclick="window.viewCandidate('${e.id}')">
     <div class="flex items-center gap-space-sm mb-space-sm">
       <div class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-on-primary font-semibold text-sm shrink-0">
@@ -71,7 +71,7 @@ async function m(e){let a=[];try{a=await window.api.get("/applicants?stages=NEW,
       </div>
     </div>
     <div class="flex items-center gap-space-sm mb-space-sm flex-wrap">
-      ${(e.skills||[]).slice(0,3).map(a=>`<span class="badge-interview px-2 py-0.5 rounded-full font-label-sm text-label-sm">${a}</span>`).join("")}
+      ${(e.skills||[]).slice(0,3).map(s=>`<span class="badge-interview px-2 py-0.5 rounded-full font-label-sm text-label-sm">${s}</span>`).join("")}
     </div>
     <div class="flex items-center justify-between">
       <span class="font-body-sm text-body-sm text-outline">${e.yearsExperience||0}y exp • ${e.currentCompany||"—"}</span>
@@ -84,7 +84,7 @@ async function m(e){let a=[];try{a=await window.api.get("/applicants?stages=NEW,
         </button>
       </div>
     </div>
-  </div>`}function c(e){return`
+  </div>`}function d(e){return`
   <div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm" data-stage="${e.stage}">
     <div class="flex items-start justify-between mb-space-sm">
       <div class="flex items-center gap-space-md min-w-0">
@@ -109,4 +109,4 @@ async function m(e){let a=[];try{a=await window.api.get("/applicants?stages=NEW,
         <span class="material-symbols-outlined text-[20px]">open_in_new</span>
       </button>
     </div>
-  </div>`}function d(e){const a=window.debounce(t=>{const s=t.toLowerCase();e.querySelectorAll("[data-stage]").forEach(n=>{n.querySelector("p")&&(n.style.display=n.textContent.toLowerCase().includes(s)?"":"none")})},300);e.querySelector("#screen-search")?.addEventListener("input",t=>a(t.target.value)),e.querySelector("#screen-search-mobile")?.addEventListener("input",t=>a(t.target.value)),e.querySelectorAll(".screen-tab").forEach(t=>{t.addEventListener("click",()=>{e.querySelectorAll(".screen-tab").forEach(n=>{n.classList.remove("bg-primary","text-on-primary"),n.classList.add("bg-surface-container-lowest","text-on-surface-variant","border","border-outline-variant/40")}),t.classList.add("bg-primary","text-on-primary"),t.classList.remove("bg-surface-container-lowest","text-on-surface-variant");const s=t.dataset.stage;e.querySelectorAll("#screening-mobile-list > div").forEach(n=>{n.style.display=!s||n.dataset.stage===s?"":"none"})})}),window.updateStage=async(t,s)=>{try{await window.api.patch(`/applicants/${t}/stage`,{stage:s}),window.showToast(`Candidate marked as ${s.toLowerCase()}`,"success"),window.loadPage("screening")}catch{window.showToast("Failed to update stage","error")}},window.viewCandidate=t=>window.loadPage("candidate-profile",{id:t})}function p(){return[{id:"1",firstName:"Alex",lastName:"Rivera",email:"alex@email.com",jobTitle:"Sr. React Engineer",stage:"NEW",yearsExperience:5,currentCompany:"Google",skills:["React","TypeScript","Node.js"]},{id:"5",firstName:"Ryan",lastName:"Patel",email:"ryan@email.com",jobTitle:"Sr. React Engineer",stage:"NEW",yearsExperience:3,currentCompany:"Startup",skills:["React","CSS"]},{id:"2",firstName:"Priya",lastName:"Sharma",email:"priya@email.com",jobTitle:"Product Manager",stage:"SCREENING",yearsExperience:7,currentCompany:"Meta",skills:["Product Strategy","Agile","Data Analysis"]},{id:"8",firstName:"David",lastName:"Lee",email:"david@email.com",jobTitle:"Backend Engineer",stage:"SCREENING",yearsExperience:4,currentCompany:"Stripe",skills:["Java","Spring Boot","PostgreSQL"]},{id:"6",firstName:"Sofia",lastName:"Martinez",email:"sofia@email.com",jobTitle:"UX Designer",stage:"SHORTLISTED",yearsExperience:6,currentCompany:"Adobe",skills:["Figma","User Research"]},{id:"7",firstName:"James",lastName:"Wong",email:"james@email.com",jobTitle:"Security Analyst",stage:"REJECTED",yearsExperience:2,currentCompany:"Unknown",skills:["Networking"]}]}export{m as render};
+  </div>`}function c(e){const s=window.debounce(t=>{const a=t.toLowerCase();e.querySelectorAll("[data-stage]").forEach(n=>{n.querySelector("p")&&(n.style.display=n.textContent.toLowerCase().includes(a)?"":"none")})},300);e.querySelector("#screen-search")?.addEventListener("input",t=>s(t.target.value)),e.querySelector("#screen-search-mobile")?.addEventListener("input",t=>s(t.target.value)),e.querySelectorAll(".screen-tab").forEach(t=>{t.addEventListener("click",()=>{e.querySelectorAll(".screen-tab").forEach(n=>{n.classList.remove("bg-primary","text-on-primary"),n.classList.add("bg-surface-container-lowest","text-on-surface-variant","border","border-outline-variant/40")}),t.classList.add("bg-primary","text-on-primary"),t.classList.remove("bg-surface-container-lowest","text-on-surface-variant");const a=t.dataset.stage;e.querySelectorAll("#screening-mobile-list > div").forEach(n=>{n.style.display=!a||n.dataset.stage===a?"":"none"})})}),window.updateStage=async(t,a)=>{try{await window.api.patch(`/applicants/${t}/stage`,{stage:a}),window.showToast(`Candidate marked as ${a.toLowerCase()}`,"success"),window.loadPage("screening")}catch{window.showToast("Failed to update stage","error")}},window.viewCandidate=t=>window.loadPage("candidate-profile",{id:t})}export{p as render};

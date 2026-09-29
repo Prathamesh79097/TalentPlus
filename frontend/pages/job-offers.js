@@ -8,11 +8,11 @@ export async function render(container, params = {}) {
   try {
     [offers, candidates] = await Promise.all([
       window.api.get('/offers'),
-      window.api.get('/applicants?stages=SELECTION,HIRED'),
+      window.api.get('/applicants'),
     ]);
   } catch {
-    offers = getDemoOffers();
-    candidates = [{ id: '3', firstName: 'Marcus', lastName: 'Chen', jobTitle: 'DevOps Lead' }];
+    offers = [];
+    candidates = [];
   }
 
   container.innerHTML = buildLayout(offers, candidates);
@@ -381,10 +381,5 @@ function attachOfferFormSubmit(candidates) {
 }
 
 function getDemoOffers() {
-  return [
-    { id: '1', candidateName: 'Marcus Chen', email: 'marcus@email.com', position: 'DevOps Lead', salary: '$140,000/yr', benefits: 'Health, Dental, 401k, Remote', status: 'PENDING', sentAt: new Date(Date.now()-2*86400000).toISOString(), expiresAt: new Date(Date.now()+5*86400000).toISOString() },
-    { id: '2', candidateName: 'Jennifer Kim', email: 'jennifer@email.com', position: 'Backend Engineer', salary: '$120,000/yr', benefits: 'Health, Dental, Equity 0.1%', status: 'ACCEPTED', sentAt: new Date(Date.now()-7*86400000).toISOString() },
-    { id: '3', candidateName: 'Alex Rivera', email: 'alex@email.com', position: 'Sr. React Engineer', salary: '$130,000/yr', benefits: 'Health, Stock Options', status: 'PENDING', sentAt: new Date(Date.now()-1*86400000).toISOString(), expiresAt: new Date(Date.now()+6*86400000).toISOString() },
-    { id: '4', candidateName: 'Tom Wilson', email: 'tom@email.com', position: 'Product Manager', salary: '$110,000/yr', benefits: 'Health, 401k', status: 'DECLINED', sentAt: new Date(Date.now()-14*86400000).toISOString() },
-  ];
+  return [];
 }

@@ -8,15 +8,11 @@ export async function render(container) {
   try {
     [interviews, candidates] = await Promise.all([
       window.api.get('/interviews'),
-      window.api.get('/applicants?stages=SHORTLISTED,INTERVIEW'),
+      window.api.get('/applicants'),
     ]);
   } catch {
-    interviews = getDemoInterviews();
-    candidates = [
-      { id: '1', firstName: 'Alex', lastName: 'Rivera', jobTitle: 'Sr. React Engineer' },
-      { id: '2', firstName: 'Priya', lastName: 'Sharma', jobTitle: 'Product Manager' },
-      { id: '6', firstName: 'Sofia', lastName: 'Martinez', jobTitle: 'UX Designer' },
-    ];
+    interviews = [];
+    candidates = [];
   }
 
   container.innerHTML = buildLayout(interviews, candidates);
@@ -185,7 +181,15 @@ function renderInterviewCard(iv) {
   </div>`;
 }
 
-function renderScheduleForm(candidates, iv = {}) {
+function renderScheduleForm(candidates = [], iv = {}) {
+  const optionsHtml = candidates && candidates.length > 0
+    ? candidates.map(c => {
+        const fullName = `${c.firstName || ''} ${c.lastName || ''}`.trim() || c.email || 'Applicant';
+        const role = c.jobTitle || c.appliedRole || '';
+        return `<option value="${c.id}" data-name="${fullName}" data-role="${role}" ${iv.candidateId === c.id ? 'selected' : ''}>${fullName}${role ? ` — ${role}` : ''}</option>`;
+      }).join('')
+    : '<option value="" disabled>No applicants available. Add or sync applicants first.</option>';
+
   return `
   <div class="p-6 flex flex-col gap-space-lg">
     <div class="flex items-center justify-between">
@@ -201,7 +205,7 @@ function renderScheduleForm(candidates, iv = {}) {
           <label class="font-label-md text-label-md text-on-surface-variant">Candidate *</label>
           <select id="iv-candidate" required class="h-11 px-space-md bg-surface-container-low rounded-lg text-on-surface text-body-md focus:outline-none focus:ring-2 focus:ring-secondary appearance-none">
             <option value="">Select candidate</option>
-            ${candidates.map(c => `<option value="${c.id}" data-name="${c.firstName} ${c.lastName}" data-role="${c.jobTitle||''}" ${iv.candidateId===c.id?'selected':''}>${c.firstName} ${c.lastName} — ${c.jobTitle||''}</option>`).join('')}
+            ${optionsHtml}
           </select>
         </div>
         <div class="flex flex-col gap-space-xs">
@@ -267,9 +271,15 @@ function groupByDate(interviews) {
 
 function attachEvents(container, candidates) {
   ['schedule-btn', 'schedule-btn-mobile'].forEach(id => {
-    container.querySelector(`#${id}`)?.addEventListener('click', () => {
-      window.openModal(renderScheduleForm(candidates));
-      attachScheduleFormSubmit(candidates);
+    container.querySelector(`#${id}`)?.addEventListener('click', async () => {
+      let latestCandidates = candidates;
+      try {
+        latestCandidates = await window.api.get('/applicants');
+      } catch (e) {
+        console.warn('Could not refresh candidates:', e);
+      }
+      window.openModal(renderScheduleForm(latestCandidates));
+      attachScheduleFormSubmit(latestCandidates);
     });
   });
 
@@ -396,12 +406,5 @@ function attachScheduleFormSubmit(candidates, existingId = null) {
 }
 
 function getDemoInterviews() {
-  const now = new Date();
-  const toISO = (h, m) => { const d = new Date(now); d.setHours(h,m,0,0); return d.toISOString(); };
-  return [
-    { id: '1', candidateName: 'Alex Rivera', position: 'Sr. React Engineer', interviewType: 'Technical', duration: 60, scheduledAt: toISO(10,30), status: 'SCHEDULED', meetingUrl: 'https://meet.google.com/abc-defg-hij' },
-    { id: '2', candidateName: 'Priya Sharma', position: 'Product Manager', interviewType: 'HR/Culture', duration: 45, scheduledAt: toISO(14,0), status: 'SCHEDULED', meetingUrl: 'https://meet.google.com/xyz-uvwx-yz1' },
-    { id: '3', candidateName: 'Sofia Martinez', position: 'UX Designer', interviewType: 'Case Study', duration: 90, scheduledAt: toISO(16,0), status: 'COMPLETED' },
-    { id: '4', candidateName: 'Marcus Chen', position: 'DevOps Lead', interviewType: 'System Design', duration: 60, scheduledAt: new Date(now.getTime() + 86400000).toISOString(), status: 'SCHEDULED' },
-  ];
+  return [];
 }

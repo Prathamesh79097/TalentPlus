@@ -2,9 +2,7 @@
 // TalentPulse – App Router & Core Application Logic
 // ─────────────────────────────────────────────────────────────────
 
-const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://localhost:8081/api'
-  : (window.BACKEND_API_URL || 'https://talentplus.onrender.com/api');
+const API_BASE = window.BACKEND_API_URL || 'https://talentplus.onrender.com/api';
 window.currentPage = 'dashboard';
 
 // ── Toast Notifications ──────────────────────────────────────────
@@ -19,7 +17,7 @@ window.showToast = (message, type = 'info', duration = 3500) => {
 };
 
 // Warm up Render backend immediately when app loads
-if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+if (typeof window !== 'undefined') {
   fetch(`${API_BASE}/jobs?status=OPEN`, { method: 'GET' }).catch(() => {});
 }
 

@@ -1,4 +1,4 @@
-async function E(e){let s=[];try{s=await window.api.get("/jobs")}catch{s=S()}e.innerHTML=g(s),y(e)}const c={"Engineering & IT":["Software Engineering","Frontend Development","Backend Development","Fullstack Development","Mobile App Development (iOS/Android)","Data Science & AI/ML","DevOps & Cloud Architecture","Cybersecurity & Network","Quality Assurance / QA Testing","Database & Infrastructure"],"Product & Design":["Product Management","UI/UX Design","Product Marketing","User Research & Analytics","Graphic & Brand Design"],"Human Resources":["Talent Acquisition / Recruiting","HR Operations & Compliance","Compensation & Benefits","Learning & Development","Employee Relations"],"Sales & Marketing":["Business Development & Sales","Digital Marketing & SEO","Content & Brand Marketing","Customer Success & Support","Account Management"],"Finance & Accounting":["Financial Planning & Analysis (FP&A)","Accounting & Audit","Corporate Finance","Tax & Payroll"],"Operations & Business":["Supply Chain & Logistics","Project / Program Management","Business Operations","Legal & Compliance"],"Healthcare & Medical":["Clinical & Nursing","Medical Research","Pharmaceuticals","Healthcare Administration"]};function g(e){return`
+async function E(e){let s=[];try{s=await window.api.get("/jobs")}catch{s=S()}e.innerHTML=x(s),y(e)}const c={"Engineering & IT":["Software Engineering","Frontend Development","Backend Development","Fullstack Development","Mobile App Development (iOS/Android)","Data Science & AI/ML","DevOps & Cloud Architecture","Cybersecurity & Network","Quality Assurance / QA Testing","Database & Infrastructure"],"Product & Design":["Product Management","UI/UX Design","Product Marketing","User Research & Analytics","Graphic & Brand Design"],"Human Resources":["Talent Acquisition / Recruiting","HR Operations & Compliance","Compensation & Benefits","Learning & Development","Employee Relations"],"Sales & Marketing":["Business Development & Sales","Digital Marketing & SEO","Content & Brand Marketing","Customer Success & Support","Account Management"],"Finance & Accounting":["Financial Planning & Analysis (FP&A)","Accounting & Audit","Corporate Finance","Tax & Payroll"],"Operations & Business":["Supply Chain & Logistics","Project / Program Management","Business Operations","Legal & Compliance"],"Healthcare & Medical":["Clinical & Nursing","Medical Research","Pharmaceuticals","Healthcare Administration"]};function x(e){return`
   <!-- ═══ DESKTOP ═══ -->
   <div class="hidden lg:block p-8 max-w-7xl mx-auto w-full">
     <div class="flex flex-col gap-space-xl">
@@ -56,7 +56,7 @@ async function E(e){let s=[];try{s=await window.api.get("/jobs")}catch{s=S()}e.i
             </tr>
           </thead>
           <tbody id="jobs-table-body" class="divide-y divide-outline-variant/20">
-            ${e.map(f).join("")}
+            ${e.map(b).join("")}
           </tbody>
         </table>
         ${e.length===0?h("No job openings found","Post your first job to start receiving applications."):""}
@@ -92,7 +92,7 @@ async function E(e){let s=[];try{s=await window.api.get("/jobs")}catch{s=S()}e.i
 
     <!-- Jobs List -->
     <div id="jobs-mobile-list" class="flex flex-col gap-space-md">
-      ${e.map(x).join("")}
+      ${e.map(g).join("")}
     </div>
   </div>
 
@@ -101,7 +101,7 @@ async function E(e){let s=[];try{s=await window.api.get("/jobs")}catch{s=S()}e.i
     <div class="modal-box">
       ${u()}
     </div>
-  </div>`}function f(e){const s=e.field||e.department||"Engineering & IT",t=e.subField?` (${e.subField})`:"";return`
+  </div>`}function b(e){const s=e.field||e.department||"Engineering & IT",t=e.subField?` (${e.subField})`:"";return`
   <tr class="hover:bg-surface-container-low transition-colors">
     <td class="px-space-xl py-space-md">
       <div>
@@ -141,7 +141,7 @@ async function E(e){let s=[];try{s=await window.api.get("/jobs")}catch{s=S()}e.i
         </button>
       </div>
     </td>
-  </tr>`}function x(e){const s=e.field||e.department||"Engineering & IT",t=e.subField?` • ${e.subField}`:"";return`
+  </tr>`}function g(e){const s=e.field||e.department||"Engineering & IT",t=e.subField?` • ${e.subField}`:"";return`
   <div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer" onclick="window.viewJobApplicants('${e.id}')">
     <div class="flex items-start justify-between mb-space-sm">
       <div class="flex-1 min-w-0">
@@ -244,7 +244,7 @@ async function E(e){let s=[];try{s=await window.api.get("/jobs")}catch{s=S()}e.i
         </button>
       </div>
     </form>
-  </div>`}function y(e){["new-job-btn","new-job-btn-mobile"].forEach(t=>{e.querySelector(`#${t}`)?.addEventListener("click",()=>{window.openModal(u()),m()})});const s=window.debounce(t=>v(e,t),300);e.querySelector("#job-search")?.addEventListener("input",t=>s(t.target.value)),e.querySelector("#job-search-mobile")?.addEventListener("input",t=>s(t.target.value)),["status-filter","dept-filter","type-filter"].forEach(t=>{e.querySelector(`#${t}`)?.addEventListener("change",()=>b(e))}),e.querySelectorAll(".status-pill").forEach(t=>{t.addEventListener("click",()=>{e.querySelectorAll(".status-pill").forEach(o=>{o.classList.remove("bg-primary","text-on-primary"),o.classList.add("bg-surface-container-lowest","text-on-surface-variant","border","border-outline-variant/40")}),t.classList.add("bg-primary","text-on-primary"),t.classList.remove("bg-surface-container-lowest","text-on-surface-variant"),b(e,t.dataset.status)})}),window.viewJobApplicants=t=>{window.loadPage("applicants",{jobId:t})},window.editJob=async t=>{try{const o=await window.api.get(`/jobs/${t}`);window.openModal(u(o)),m(t)}catch{window.showToast("Failed to load job details","error")}},window.deleteJob=t=>{window.confirmDialog("Are you sure you want to delete this job posting?",async()=>{try{await window.api.delete(`/jobs/${t}`),window.showToast("Job deleted successfully","success"),window.loadPage("job-openings")}catch{window.showToast("Failed to delete job","error")}})},window.openGoogleFormModal=async t=>{let o=null;try{o=await window.api.get(`/jobs/${t}`)}catch{o={id:t,title:"Job Requisition",googleFormUrl:""}}const n=`${window.location.hostname==="localhost"||window.location.hostname==="127.0.0.1"?"https://chilly-readers-post.loca.lt":"https://talentplus.onrender.com"}/api/webhooks/google-form`,l=`// ─────────────────────────────────────────────────────────────
+  </div>`}function y(e){["new-job-btn","new-job-btn-mobile"].forEach(t=>{e.querySelector(`#${t}`)?.addEventListener("click",()=>{window.openModal(u()),m()})});const s=window.debounce(t=>v(e,t),300);e.querySelector("#job-search")?.addEventListener("input",t=>s(t.target.value)),e.querySelector("#job-search-mobile")?.addEventListener("input",t=>s(t.target.value)),["status-filter","dept-filter","type-filter"].forEach(t=>{e.querySelector(`#${t}`)?.addEventListener("change",()=>f(e))}),e.querySelectorAll(".status-pill").forEach(t=>{t.addEventListener("click",()=>{e.querySelectorAll(".status-pill").forEach(o=>{o.classList.remove("bg-primary","text-on-primary"),o.classList.add("bg-surface-container-lowest","text-on-surface-variant","border","border-outline-variant/40")}),t.classList.add("bg-primary","text-on-primary"),t.classList.remove("bg-surface-container-lowest","text-on-surface-variant"),f(e,t.dataset.status)})}),window.viewJobApplicants=t=>{window.loadPage("applicants",{jobId:t})},window.editJob=async t=>{try{const o=await window.api.get(`/jobs/${t}`);window.openModal(u(o)),m(t)}catch{window.showToast("Failed to load job details","error")}},window.deleteJob=t=>{window.confirmDialog("Are you sure you want to delete this job posting?",async()=>{try{await window.api.delete(`/jobs/${t}`),window.showToast("Job deleted successfully","success"),window.loadPage("job-openings")}catch{window.showToast("Failed to delete job","error")}})},window.openGoogleFormModal=async t=>{let o=null;try{o=await window.api.get(`/jobs/${t}`)}catch{o={id:t,title:"Job Requisition",googleFormUrl:""}}const n=`${window.BACKEND_API_URL?window.BACKEND_API_URL.replace(/\/api\/?$/,""):"https://talentplus.onrender.com"}/api/webhooks/google-form`,l=`// ─────────────────────────────────────────────────────────────
 // TalentPulse Google Form Integration Script for Job: ${o.title||"Requisition"}
 // ─────────────────────────────────────────────────────────────
 
@@ -253,36 +253,62 @@ const WEBHOOK_SECRET = "talentpulse-secret-key";
 const JOB_ID = "${o.id}";
 
 function onFormSubmit(e) {
-  if (!e || !e.namedValues) {
-    Logger.log("No form submit values found.");
+  Logger.log("onFormSubmit triggered: " + JSON.stringify(e));
+  let itemResponses = {};
+
+  if (e && e.namedValues) {
+    itemResponses = e.namedValues;
+  } else if (e && e.response && typeof e.response.getItemResponses === "function") {
+    const resps = e.response.getItemResponses();
+    for (let i = 0; i < resps.length; i++) {
+      const item = resps[i];
+      itemResponses[item.getItem().getTitle()] = [item.getResponse()];
+    }
+    if (e.response.getRespondentEmail) {
+      itemResponses["Email"] = [e.response.getRespondentEmail()];
+    }
+  } else {
+    // Fallback: Read the last row of the active sheet
+    Logger.log("No event payload found. Reading latest row from active sheet...");
+    itemResponses = getLatestRowAsNamedValues();
+  }
+
+  if (!itemResponses || Object.keys(itemResponses).length === 0) {
+    Logger.log("Error: Could not find any form/sheet values.");
     return;
   }
-  const itemResponses = e.namedValues;
-  
-  // Build 1:1 raw spreadsheet response object (preserves all headers & values)
+
+  // Build 1:1 raw spreadsheet response object
   const rawFormResponses = {};
   for (let key in itemResponses) {
     const val = itemResponses[key];
     rawFormResponses[key] = Array.isArray(val) ? val.join(", ") : (val || "");
   }
 
+  const emailVal = getVal(itemResponses, ["Email", "Email Address", "Email address", "mail"]);
+  if (!emailVal) {
+    Logger.log("Warning: No Email field found in submission. Submission might be rejected by backend.");
+  }
+
   const payload = {
     jobId: JOB_ID,
-    firstName: getVal(itemResponses, ["First Name", "First name", "Name", "Full Name"]) || "Applicant",
+    firstName: getVal(itemResponses, ["First Name", "First name", "Name", "Full Name", "Applicant Name", "Candidate Name"]) || "Applicant",
     lastName: getVal(itemResponses, ["Last Name", "Last name", "Surname"]) || "",
-    email: getVal(itemResponses, ["Email", "Email Address", "Email address"]),
-    phone: getVal(itemResponses, ["Phone", "Phone Number", "Mobile", "Contact Number"]),
-    skills: parseSkills(getVal(itemResponses, ["Skills", "Required Skills", "Key Skills"])),
-    yearsExperience: parseInt(getVal(itemResponses, ["Experience", "Years of Experience"])) || 0,
+    email: emailVal,
+    phone: getVal(itemResponses, ["Phone", "Phone Number", "Mobile", "Contact Number", "Contact"]),
+    skills: parseSkills(getVal(itemResponses, ["Skills", "Required Skills", "Key Skills", "Technical Skills"])),
+    yearsExperience: parseInt(getVal(itemResponses, ["Experience", "Years of Experience", "Total Experience"])) || 0,
     education: getVal(itemResponses, ["Education", "Degree", "Qualification"]),
-    currentCompany: getVal(itemResponses, ["Current Company", "Company"]),
+    currentCompany: getVal(itemResponses, ["Current Company", "Company", "Organization"]),
     linkedinUrl: getVal(itemResponses, ["LinkedIn", "LinkedIn URL", "LinkedIn Profile"]),
     githubUrl: getVal(itemResponses, ["GitHub", "GitHub URL", "Portfolio"]),
-    resumeUrl: getVal(itemResponses, ["Resume", "CV", "Upload Resume", "Resume Link"]),
+    resumeUrl: getVal(itemResponses, ["Resume", "CV", "Upload Resume", "Resume Link", "Drive Link"]),
     source: "Google Form",
-    notes: "Submitted via Google Form on " + new Date().toLocaleString(),
+    notes: "Submitted via Google Form / Sheet on " + new Date().toLocaleString(),
     rawFormResponses: rawFormResponses
   };
+
+  Logger.log("Sending payload to backend: " + JSON.stringify(payload));
 
   const options = {
     method: "post",
@@ -294,16 +320,46 @@ function onFormSubmit(e) {
 
   try {
     const res = UrlFetchApp.fetch(WEBHOOK_URL, options);
-    Logger.log("Response: " + res.getContentText());
+    const code = res.getResponseCode();
+    const text = res.getContentText();
+    Logger.log("Backend Response Code: " + code);
+    Logger.log("Backend Response Body: " + text);
   } catch (err) {
-    Logger.log("Error sending webhook: " + err.toString());
+    Logger.log("Network error sending webhook: " + err.toString());
+  }
+}
+
+// ── Helper to test-send the latest row manually from Apps Script ──
+function testSendLatestRow() {
+  onFormSubmit(null);
+}
+
+function getLatestRowAsNamedValues() {
+  try {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    const lastRow = sheet.getLastRow();
+    const lastCol = sheet.getLastColumn();
+    if (lastRow < 2 || lastCol < 1) return {};
+    const headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    const rowValues = sheet.getRange(lastRow, 1, 1, lastCol).getValues()[0];
+    const namedValues = {};
+    for (let i = 0; i < headers.length; i++) {
+      const header = (headers[i] || "").toString().trim();
+      if (header) {
+        namedValues[header] = [rowValues[i] !== undefined && rowValues[i] !== null ? rowValues[i].toString() : ""];
+      }
+    }
+    return namedValues;
+  } catch (err) {
+    Logger.log("Error reading latest row: " + err.toString());
+    return {};
   }
 }
 
 function getVal(responses, keys) {
   for (let k of keys) {
     for (let key in responses) {
-      if (key.toLowerCase().includes(k.toLowerCase())) {
+      if (key.toLowerCase().trim().includes(k.toLowerCase().trim())) {
         const val = responses[key];
         return Array.isArray(val) ? val[0] : val;
       }
@@ -371,7 +427,7 @@ function parseSkills(str) {
           </ol>
         </div>
       </div>
-    </div>`;window.openModal(i);const r=document.getElementById("gf-save-btn");r?.addEventListener("click",async()=>{const d=document.getElementById("gf-url-input").value.trim();r.disabled=!0;try{await window.api.patch(`/jobs/${t}`,{googleFormUrl:d}),window.showToast("Google Form link saved for job!","success"),window.closeModal(),window.loadPage("job-openings")}catch{window.showToast("Failed to save Google Form link","error"),r.disabled=!1}}),document.getElementById("copy-script-btn")?.addEventListener("click",()=>{navigator.clipboard.writeText(l),window.showToast("Google Apps Script copied!","success")})}}function m(e=null){const s=document.getElementById("job-form");if(!s)return;const t=document.getElementById("job-field"),o=document.getElementById("job-subfield");t?.addEventListener("change",a=>{const n=a.target.value,l=c[n]||[];o.innerHTML='<option value="">Select Sub-field</option>'+l.map(i=>`<option value="${i}">${i}</option>`).join("")}),s.addEventListener("submit",async a=>{a.preventDefault();const n=document.getElementById("job-submit"),l=document.getElementById("job-form-error");n.disabled=!0,n.innerHTML='<div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>',l.classList.add("hidden");const i=document.getElementById("job-field").value,r=document.getElementById("job-subfield").value,d={title:document.getElementById("job-title").value,field:i,subField:r,department:i,jobType:document.getElementById("job-type").value,location:document.getElementById("job-location").value,salaryRange:document.getElementById("job-salary").value,description:document.getElementById("job-desc").value,skills:document.getElementById("job-skills").value.split(",").map(p=>p.trim()).filter(Boolean),status:document.getElementById("job-status").value};try{e?(await window.api.put(`/jobs/${e}`,d),window.showToast("Job updated successfully!","success")):(await window.api.post("/jobs",d),window.showToast("Job posted successfully!","success")),window.closeModal(),window.loadPage("job-openings")}catch(p){l.textContent=p.message,l.classList.remove("hidden"),n.disabled=!1,n.innerHTML=`<span class="material-symbols-outlined text-[18px]">save</span> ${e?"Save Changes":"Post Job"}`}})}async function b(e,s){const t=s??e.querySelector("#status-filter")?.value??"",o=e.querySelector("#dept-filter")?.value??"",a=e.querySelector("#type-filter")?.value??"";let n="/jobs?";t&&(n+=`status=${t}&`),o&&(n+=`department=${encodeURIComponent(o)}&`),a&&(n+=`jobType=${a}&`);try{const l=await window.api.get(n),i=e.querySelector("#jobs-table-body");i&&(i.innerHTML=l.map(f).join(""));const r=e.querySelector("#jobs-mobile-list");r&&(r.innerHTML=l.map(x).join(""))}catch{}}function v(e,s){const t=s.toLowerCase();e.querySelectorAll("#jobs-table-body tr").forEach(o=>{o.style.display=o.textContent.toLowerCase().includes(t)?"":"none"}),e.querySelectorAll("#jobs-mobile-list > div").forEach(o=>{o.style.display=o.textContent.toLowerCase().includes(t)?"":"none"})}function w(e){return{FULL_TIME:"Full Time",PART_TIME:"Part Time",CONTRACT:"Contract",INTERNSHIP:"Internship"}[e]||e||"Full Time"}function h(e,s){return`<div class="flex flex-col items-center justify-center py-16 gap-space-md text-on-surface-variant">
+    </div>`;window.openModal(i);const r=document.getElementById("gf-save-btn");r?.addEventListener("click",async()=>{const d=document.getElementById("gf-url-input").value.trim();r.disabled=!0;try{await window.api.patch(`/jobs/${t}`,{googleFormUrl:d}),window.showToast("Google Form link saved for job!","success"),window.closeModal(),window.loadPage("job-openings")}catch{window.showToast("Failed to save Google Form link","error"),r.disabled=!1}}),document.getElementById("copy-script-btn")?.addEventListener("click",()=>{navigator.clipboard.writeText(l),window.showToast("Google Apps Script copied!","success")})}}function m(e=null){const s=document.getElementById("job-form");if(!s)return;const t=document.getElementById("job-field"),o=document.getElementById("job-subfield");t?.addEventListener("change",a=>{const n=a.target.value,l=c[n]||[];o.innerHTML='<option value="">Select Sub-field</option>'+l.map(i=>`<option value="${i}">${i}</option>`).join("")}),s.addEventListener("submit",async a=>{a.preventDefault();const n=document.getElementById("job-submit"),l=document.getElementById("job-form-error");n.disabled=!0,n.innerHTML='<div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>',l.classList.add("hidden");const i=document.getElementById("job-field").value,r=document.getElementById("job-subfield").value,d={title:document.getElementById("job-title").value,field:i,subField:r,department:i,jobType:document.getElementById("job-type").value,location:document.getElementById("job-location").value,salaryRange:document.getElementById("job-salary").value,description:document.getElementById("job-desc").value,skills:document.getElementById("job-skills").value.split(",").map(p=>p.trim()).filter(Boolean),status:document.getElementById("job-status").value};try{e?(await window.api.put(`/jobs/${e}`,d),window.showToast("Job updated successfully!","success")):(await window.api.post("/jobs",d),window.showToast("Job posted successfully!","success")),window.closeModal(),window.loadPage("job-openings")}catch(p){l.textContent=p.message,l.classList.remove("hidden"),n.disabled=!1,n.innerHTML=`<span class="material-symbols-outlined text-[18px]">save</span> ${e?"Save Changes":"Post Job"}`}})}async function f(e,s){const t=s??e.querySelector("#status-filter")?.value??"",o=e.querySelector("#dept-filter")?.value??"",a=e.querySelector("#type-filter")?.value??"";let n="/jobs?";t&&(n+=`status=${t}&`),o&&(n+=`department=${encodeURIComponent(o)}&`),a&&(n+=`jobType=${a}&`);try{const l=await window.api.get(n),i=e.querySelector("#jobs-table-body");i&&(i.innerHTML=l.map(b).join(""));const r=e.querySelector("#jobs-mobile-list");r&&(r.innerHTML=l.map(g).join(""))}catch{}}function v(e,s){const t=s.toLowerCase();e.querySelectorAll("#jobs-table-body tr").forEach(o=>{o.style.display=o.textContent.toLowerCase().includes(t)?"":"none"}),e.querySelectorAll("#jobs-mobile-list > div").forEach(o=>{o.style.display=o.textContent.toLowerCase().includes(t)?"":"none"})}function w(e){return{FULL_TIME:"Full Time",PART_TIME:"Part Time",CONTRACT:"Contract",INTERNSHIP:"Internship"}[e]||e||"Full Time"}function h(e,s){return`<div class="flex flex-col items-center justify-center py-16 gap-space-md text-on-surface-variant">
     <span class="material-symbols-outlined text-[48px]">work_off</span>
     <p class="font-headline-sm text-headline-sm">${e}</p>
     <p class="font-body-sm text-body-sm text-outline">${s}</p>

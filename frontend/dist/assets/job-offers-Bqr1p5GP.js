@@ -1,4 +1,4 @@
-async function y(e,s={}){let t=[],a=[];try{[t,a]=await Promise.all([window.api.get("/offers"),window.api.get("/applicants?stages=SELECTION,HIRED")])}catch{t=b(),a=[{id:"3",firstName:"Marcus",lastName:"Chen",jobTitle:"DevOps Lead"}]}if(e.innerHTML=p(t,a),x(e,a),s.candidateId){const n=a.find(l=>l.id===s.candidateId)||{id:s.candidateId};setTimeout(()=>{window.openSendOfferModal(n)},100)}}function p(e,s){const t={pending:e.filter(a=>a.status==="PENDING").length,accepted:e.filter(a=>a.status==="ACCEPTED").length,declined:e.filter(a=>a.status==="DECLINED").length,total:e.length};return`
+async function b(e,s={}){let t=[],a=[];try{[t,a]=await Promise.all([window.api.get("/offers"),window.api.get("/applicants")])}catch{t=[],a=[]}if(e.innerHTML=p(t,a),x(e,a),s.candidateId){const n=a.find(l=>l.id===s.candidateId)||{id:s.candidateId};setTimeout(()=>{window.openSendOfferModal(n)},100)}}function p(e,s){const t={pending:e.filter(a=>a.status==="PENDING").length,accepted:e.filter(a=>a.status==="ACCEPTED").length,declined:e.filter(a=>a.status==="DECLINED").length,total:e.length};return`
   <!-- ═══ DESKTOP ═══ -->
   <div class="hidden lg:block p-8 max-w-7xl mx-auto w-full">
     <div class="flex flex-col gap-space-xl">
@@ -43,7 +43,7 @@ async function y(e,s={}){let t=[],a=[];try{[t,a]=await Promise.all([window.api.g
             </tr>
           </thead>
           <tbody id="offers-tbody" class="divide-y divide-outline-variant/20">
-            ${e.map(m).join("")}
+            ${e.map(u).join("")}
           </tbody>
         </table>
         ${e.length===0?'<div class="flex flex-col items-center justify-center py-16 text-on-surface-variant"><span class="material-symbols-outlined text-[48px]">local_offer</span><p class="font-headline-sm text-headline-sm mt-4">No offers sent yet</p></div>':""}
@@ -74,14 +74,14 @@ async function y(e,s={}){let t=[],a=[];try{[t,a]=await Promise.all([window.api.g
     </div>
 
     <div id="offers-mobile-list" class="flex flex-col gap-space-md">
-      ${e.map(u).join("")}
+      ${e.map(m).join("")}
     </div>
   </div>
 
   <!-- Send Offer Modal -->
   <div id="send-offer-modal" class="modal-overlay hidden">
     <div class="modal-box">
-      ${i(s)}
+      ${r(s)}
     </div>
   </div>`}function d(e,s,t,a){return`
   <div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex items-center gap-space-md">
@@ -92,7 +92,7 @@ async function y(e,s={}){let t=[],a=[];try{[t,a]=await Promise.all([window.api.g
       <span class="font-label-sm text-label-sm text-outline uppercase tracking-wider block">${e}</span>
       <span class="font-headline-md text-headline-md text-on-surface font-bold">${s}</span>
     </div>
-  </div>`}function m(e){const s=e.expiresAt?Math.ceil((new Date(e.expiresAt)-Date.now())/864e5):null;return`
+  </div>`}function u(e){const s=e.expiresAt?Math.ceil((new Date(e.expiresAt)-Date.now())/864e5):null;return`
   <tr class="hover:bg-surface-container-low transition-colors">
     <td class="px-space-xl py-space-md">
       <div class="flex items-center gap-space-md">
@@ -130,7 +130,7 @@ async function y(e,s={}){let t=[],a=[];try{[t,a]=await Promise.all([window.api.g
         </button>
       </div>
     </td>
-  </tr>`}function u(e){return`
+  </tr>`}function m(e){return`
   <div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm" data-status="${e.status}">
     <div class="flex items-start justify-between mb-space-sm">
       <div class="flex items-center gap-space-md min-w-0">
@@ -155,7 +155,7 @@ async function y(e,s={}){let t=[],a=[];try{[t,a]=await Promise.all([window.api.g
           <button onclick="window.updateOfferStatus('${e.id}','DECLINED')" class="py-2 px-space-md rounded-lg bg-error-container text-error font-label-md text-label-md min-h-[44px]">Decline</button>
         </div>`:""}
     </div>
-  </div>`}function i(e,s={}){return`
+  </div>`}function r(e,s={}){return`
   <div class="p-6 flex flex-col gap-space-lg">
     <div class="flex items-center justify-between">
       <h2 class="font-headline-md text-headline-md text-on-surface">Send Job Offer</h2>
@@ -215,4 +215,4 @@ async function y(e,s={}){let t=[],a=[];try{[t,a]=await Promise.all([window.api.g
         </button>
       </div>
     </form>
-  </div>`}function x(e,s){["send-offer-btn","send-offer-btn-mobile"].forEach(t=>{e.querySelector(`#${t}`)?.addEventListener("click",()=>{window.openModal(i(s)),r()})}),window.openSendOfferModal=t=>{window.openModal(i(s,{candidateId:t.id})),r(),setTimeout(()=>{const a=document.getElementById("offer-candidate");a&&(a.value=t.id)},50)},e.querySelectorAll(".offer-filter").forEach(t=>{t.addEventListener("click",()=>{e.querySelectorAll(".offer-filter").forEach(n=>{n.classList.remove("bg-primary","text-on-primary"),n.classList.add("bg-surface-container","text-on-surface-variant")}),t.classList.add("bg-primary","text-on-primary"),t.classList.remove("bg-surface-container","text-on-surface-variant");const a=t.dataset.filter;e.querySelectorAll("#offers-tbody tr").forEach(n=>{n.style.display=a==="ALL"||n.textContent.toUpperCase().includes(a)?"":"none"})})}),e.querySelectorAll(".offer-pill").forEach(t=>{t.addEventListener("click",()=>{e.querySelectorAll(".offer-pill").forEach(n=>{n.classList.remove("bg-primary","text-on-primary"),n.classList.add("bg-surface-container-lowest","text-on-surface-variant","border","border-outline-variant/40")}),t.classList.add("bg-primary","text-on-primary"),t.classList.remove("bg-surface-container-lowest","text-on-surface-variant");const a=t.dataset.filter;e.querySelectorAll("#offers-mobile-list > div").forEach(n=>{n.style.display=!a||n.dataset.status===a?"":"none"})})}),window.updateOfferStatus=async(t,a)=>{try{await window.api.patch(`/offers/${t}/status`,{status:a}),window.showToast(`Offer marked as ${a.toLowerCase()}`,a==="ACCEPTED"?"success":"info"),window.loadPage("job-offers")}catch{window.showToast("Failed to update offer status","error")}},window.deleteOffer=t=>{window.confirmDialog("Delete this offer?",async()=>{try{await window.api.delete(`/offers/${t}`),window.showToast("Offer deleted","info"),window.loadPage("job-offers")}catch{window.showToast("Failed to delete offer","error")}})}}function r(e){const s=document.getElementById("offer-form");s&&s.addEventListener("submit",async t=>{t.preventDefault();const a=document.getElementById("offer-submit"),n=document.getElementById("offer-form-error");a.disabled=!0,a.innerHTML='<div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>',n.classList.add("hidden");const l=document.getElementById("offer-candidate"),o=l.options[l.selectedIndex],c={candidateId:l.value,candidateName:o.dataset.name,position:o.dataset.role,salary:document.getElementById("offer-salary").value,startDate:document.getElementById("offer-start").value,expiresAt:document.getElementById("offer-expires").value?new Date(document.getElementById("offer-expires").value).toISOString():null,equity:document.getElementById("offer-equity").value,benefits:document.getElementById("offer-benefits").value,notes:document.getElementById("offer-notes").value,status:"PENDING",sentAt:new Date().toISOString()};try{await window.api.post("/offers",c),window.showToast("Offer sent successfully!","success"),window.closeModal(),window.loadPage("job-offers")}catch(f){n.textContent=f.message,n.classList.remove("hidden"),a.disabled=!1,a.innerHTML='<span class="material-symbols-outlined text-[18px]">send</span> Send Offer'}})}function b(){return[{id:"1",candidateName:"Marcus Chen",email:"marcus@email.com",position:"DevOps Lead",salary:"$140,000/yr",benefits:"Health, Dental, 401k, Remote",status:"PENDING",sentAt:new Date(Date.now()-2*864e5).toISOString(),expiresAt:new Date(Date.now()+5*864e5).toISOString()},{id:"2",candidateName:"Jennifer Kim",email:"jennifer@email.com",position:"Backend Engineer",salary:"$120,000/yr",benefits:"Health, Dental, Equity 0.1%",status:"ACCEPTED",sentAt:new Date(Date.now()-7*864e5).toISOString()},{id:"3",candidateName:"Alex Rivera",email:"alex@email.com",position:"Sr. React Engineer",salary:"$130,000/yr",benefits:"Health, Stock Options",status:"PENDING",sentAt:new Date(Date.now()-1*864e5).toISOString(),expiresAt:new Date(Date.now()+6*864e5).toISOString()},{id:"4",candidateName:"Tom Wilson",email:"tom@email.com",position:"Product Manager",salary:"$110,000/yr",benefits:"Health, 401k",status:"DECLINED",sentAt:new Date(Date.now()-14*864e5).toISOString()}]}export{y as render};
+  </div>`}function x(e,s){["send-offer-btn","send-offer-btn-mobile"].forEach(t=>{e.querySelector(`#${t}`)?.addEventListener("click",()=>{window.openModal(r(s)),i()})}),window.openSendOfferModal=t=>{window.openModal(r(s,{candidateId:t.id})),i(),setTimeout(()=>{const a=document.getElementById("offer-candidate");a&&(a.value=t.id)},50)},e.querySelectorAll(".offer-filter").forEach(t=>{t.addEventListener("click",()=>{e.querySelectorAll(".offer-filter").forEach(n=>{n.classList.remove("bg-primary","text-on-primary"),n.classList.add("bg-surface-container","text-on-surface-variant")}),t.classList.add("bg-primary","text-on-primary"),t.classList.remove("bg-surface-container","text-on-surface-variant");const a=t.dataset.filter;e.querySelectorAll("#offers-tbody tr").forEach(n=>{n.style.display=a==="ALL"||n.textContent.toUpperCase().includes(a)?"":"none"})})}),e.querySelectorAll(".offer-pill").forEach(t=>{t.addEventListener("click",()=>{e.querySelectorAll(".offer-pill").forEach(n=>{n.classList.remove("bg-primary","text-on-primary"),n.classList.add("bg-surface-container-lowest","text-on-surface-variant","border","border-outline-variant/40")}),t.classList.add("bg-primary","text-on-primary"),t.classList.remove("bg-surface-container-lowest","text-on-surface-variant");const a=t.dataset.filter;e.querySelectorAll("#offers-mobile-list > div").forEach(n=>{n.style.display=!a||n.dataset.status===a?"":"none"})})}),window.updateOfferStatus=async(t,a)=>{try{await window.api.patch(`/offers/${t}/status`,{status:a}),window.showToast(`Offer marked as ${a.toLowerCase()}`,a==="ACCEPTED"?"success":"info"),window.loadPage("job-offers")}catch{window.showToast("Failed to update offer status","error")}},window.deleteOffer=t=>{window.confirmDialog("Delete this offer?",async()=>{try{await window.api.delete(`/offers/${t}`),window.showToast("Offer deleted","info"),window.loadPage("job-offers")}catch{window.showToast("Failed to delete offer","error")}})}}function i(e){const s=document.getElementById("offer-form");s&&s.addEventListener("submit",async t=>{t.preventDefault();const a=document.getElementById("offer-submit"),n=document.getElementById("offer-form-error");a.disabled=!0,a.innerHTML='<div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>',n.classList.add("hidden");const l=document.getElementById("offer-candidate"),o=l.options[l.selectedIndex],c={candidateId:l.value,candidateName:o.dataset.name,position:o.dataset.role,salary:document.getElementById("offer-salary").value,startDate:document.getElementById("offer-start").value,expiresAt:document.getElementById("offer-expires").value?new Date(document.getElementById("offer-expires").value).toISOString():null,equity:document.getElementById("offer-equity").value,benefits:document.getElementById("offer-benefits").value,notes:document.getElementById("offer-notes").value,status:"PENDING",sentAt:new Date().toISOString()};try{await window.api.post("/offers",c),window.showToast("Offer sent successfully!","success"),window.closeModal(),window.loadPage("job-offers")}catch(f){n.textContent=f.message,n.classList.remove("hidden"),a.disabled=!1,a.innerHTML='<span class="material-symbols-outlined text-[18px]">send</span> Send Offer'}})}export{b as render};

@@ -5,9 +5,9 @@
 export async function render(container) {
   let applicants = [];
   try {
-    applicants = await window.api.get('/applicants?stages=NEW,SCREENING');
+    applicants = await window.api.get('/applicants?stages=NEW,SCREENING,SHORTLISTED,REJECTED');
   } catch {
-    applicants = getDemoScreening();
+    applicants = [];
   }
 
   container.innerHTML = buildLayout(applicants);
@@ -188,12 +188,5 @@ function attachEvents(container) {
 }
 
 function getDemoScreening() {
-  return [
-    { id: '1', firstName: 'Alex', lastName: 'Rivera', email: 'alex@email.com', jobTitle: 'Sr. React Engineer', stage: 'NEW', yearsExperience: 5, currentCompany: 'Google', skills: ['React', 'TypeScript', 'Node.js'] },
-    { id: '5', firstName: 'Ryan', lastName: 'Patel', email: 'ryan@email.com', jobTitle: 'Sr. React Engineer', stage: 'NEW', yearsExperience: 3, currentCompany: 'Startup', skills: ['React', 'CSS'] },
-    { id: '2', firstName: 'Priya', lastName: 'Sharma', email: 'priya@email.com', jobTitle: 'Product Manager', stage: 'SCREENING', yearsExperience: 7, currentCompany: 'Meta', skills: ['Product Strategy', 'Agile', 'Data Analysis'] },
-    { id: '8', firstName: 'David', lastName: 'Lee', email: 'david@email.com', jobTitle: 'Backend Engineer', stage: 'SCREENING', yearsExperience: 4, currentCompany: 'Stripe', skills: ['Java', 'Spring Boot', 'PostgreSQL'] },
-    { id: '6', firstName: 'Sofia', lastName: 'Martinez', email: 'sofia@email.com', jobTitle: 'UX Designer', stage: 'SHORTLISTED', yearsExperience: 6, currentCompany: 'Adobe', skills: ['Figma', 'User Research'] },
-    { id: '7', firstName: 'James', lastName: 'Wong', email: 'james@email.com', jobTitle: 'Security Analyst', stage: 'REJECTED', yearsExperience: 2, currentCompany: 'Unknown', skills: ['Networking'] },
-  ];
+  return [];
 }
