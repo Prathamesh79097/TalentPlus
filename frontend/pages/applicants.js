@@ -31,9 +31,9 @@ function buildLayout(applicants, jobs, selectedJobId) {
           <p class="font-body-md text-body-md text-on-surface-variant">${applicants.length} candidates across all open roles</p>
         </div>
         <div class="flex items-center gap-space-sm">
-          <button id="clear-all-applicants-btn" class="h-10 px-space-md flex items-center gap-space-xs rounded-lg border border-error/30 text-error hover:bg-error-container/30 transition-colors font-body-sm text-body-sm">
-            <span class="material-symbols-outlined text-[18px]">delete_sweep</span>
-            <span>Clear All Applicants</span>
+          <button id="delete-selected-btn" class="hidden h-10 px-space-md flex items-center gap-space-xs rounded-lg bg-error text-on-error hover:opacity-90 transition-all font-body-sm text-body-sm shadow-sm font-medium">
+            <span class="material-symbols-outlined text-[18px]">delete</span>
+            <span>Delete Selected (<span id="selected-count">0</span>)</span>
           </button>
           <button id="add-applicant-btn" class="h-10 px-space-lg flex items-center gap-space-xs rounded-lg bg-primary text-on-primary font-body-sm text-body-sm font-semibold hover:bg-secondary transition-all shadow-md">
             <span class="material-symbols-outlined text-[18px]">person_add</span>
@@ -69,7 +69,10 @@ function buildLayout(applicants, jobs, selectedJobId) {
         <table class="w-full">
           <thead class="bg-surface-container-low border-b border-outline-variant/30">
             <tr>
-              <th class="text-left px-space-xl py-space-md font-label-sm text-label-sm text-outline uppercase tracking-wider">Candidate</th>
+              <th class="w-12 px-4 py-space-md text-center">
+                <input type="checkbox" id="select-all-applicants" class="w-4 h-4 rounded border-outline-variant text-primary focus:ring-secondary cursor-pointer" title="Select All"/>
+              </th>
+              <th class="text-left px-space-md py-space-md font-label-sm text-label-sm text-outline uppercase tracking-wider">Candidate</th>
               <th class="text-left px-space-md py-space-md font-label-sm text-label-sm text-outline uppercase tracking-wider">Applied Role</th>
               <th class="text-left px-space-md py-space-md font-label-sm text-label-sm text-outline uppercase tracking-wider">Stage</th>
               <th class="text-left px-space-md py-space-md font-label-sm text-label-sm text-outline uppercase tracking-wider">Rating</th>
@@ -93,9 +96,15 @@ function buildLayout(applicants, jobs, selectedJobId) {
         <h1 class="font-headline-sm text-headline-sm text-on-surface">Applicants</h1>
         <p class="font-body-sm text-body-sm text-on-surface-variant">${applicants.length} candidates</p>
       </div>
-      <button id="add-applicant-btn-mobile" class="h-10 px-space-md flex items-center gap-space-xs rounded-lg bg-primary text-on-primary font-label-md text-label-md font-semibold active:scale-95 transition-transform">
-        <span class="material-symbols-outlined text-[18px]">person_add</span>
-      </button>
+      <div class="flex items-center gap-2">
+        <button id="delete-selected-btn-mobile" class="hidden h-10 px-space-md flex items-center gap-1 rounded-lg bg-error text-on-error font-label-md text-label-md font-semibold active:scale-95 transition-transform">
+          <span class="material-symbols-outlined text-[18px]">delete</span>
+          <span>(<span id="selected-count-mobile">0</span>)</span>
+        </button>
+        <button id="add-applicant-btn-mobile" class="h-10 px-space-md flex items-center gap-space-xs rounded-lg bg-primary text-on-primary font-label-md text-label-md font-semibold active:scale-95 transition-transform">
+          <span class="material-symbols-outlined text-[18px]">person_add</span>
+        </button>
+      </div>
     </div>
 
     <div class="relative">
@@ -126,19 +135,23 @@ function buildLayout(applicants, jobs, selectedJobId) {
 function renderApplicantRow(a) {
   const stars = '★'.repeat(Math.round(a.rating || 0)) + '☆'.repeat(5 - Math.round(a.rating || 0));
   const isGoogleForm = a.source === 'Google Form';
+  const candName = `${a.firstName || ''} ${a.lastName || a.name || ''}`.trim() || 'Applicant';
   return `
   <tr class="hover:bg-surface-container-low transition-colors cursor-pointer" onclick="window.viewCandidate('${a.id}')">
-    <td class="px-space-xl py-space-md">
+    <td class="w-12 px-4 py-space-md text-center" onclick="event.stopPropagation()">
+      <input type="checkbox" class="applicant-cb w-4 h-4 rounded border-outline-variant text-primary focus:ring-secondary cursor-pointer" data-id="${a.id}" data-name="${candName}" onclick="event.stopPropagation(); window.updateSelectedApplicantCount()"/>
+    </td>
+    <td class="px-space-md py-space-md">
       <div class="flex items-center gap-space-md">
         <div class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-on-primary font-semibold text-sm shrink-0">
           ${(a.firstName||a.name||'C')[0]?.toUpperCase()}
         </div>
         <div>
           <div class="flex items-center gap-space-xs">
-            <p class="font-headline-sm text-headline-sm text-on-surface">${a.firstName || ''} ${a.lastName || a.name || ''}</p>
+            <p class="font-headline-sm text-headline-sm text-on-surface">${candName}</p>
             ${isGoogleForm ? `<span class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 font-label-sm text-[10px] font-semibold flex items-center gap-0.5" title="Applied via Google Form"><span class="material-symbols-outlined text-[12px]">description</span>Form</span>` : ''}
           </div>
-          <p class="font-body-sm text-body-sm text-outline">${a.email}</p>
+          <p class="font-body-sm text-body-sm text-outline">${a.email || '—'}</p>
         </div>
       </div>
     </td>
@@ -155,10 +168,13 @@ function renderApplicantRow(a) {
       <span class="font-body-sm text-body-sm text-outline">${window.fmtDate(a.appliedDate || a.createdAt)}</span>
     </td>
     <td class="px-space-xl py-space-md text-right">
-      <div class="flex items-center justify-end gap-space-sm" onclick="e => e.stopPropagation()">
+      <div class="flex items-center justify-end gap-space-sm" onclick="event.stopPropagation()">
         <button onclick="event.stopPropagation(); window.advanceCandidate('${a.id}', '${a.stage}')" class="px-space-md py-space-xs rounded-lg bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-container-high transition-colors">Advance</button>
-        <button onclick="event.stopPropagation(); window.viewCandidate('${a.id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-high">
+        <button onclick="event.stopPropagation(); window.viewCandidate('${a.id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-high" title="View Profile">
           <span class="material-symbols-outlined text-[18px]">open_in_new</span>
+        </button>
+        <button onclick="event.stopPropagation(); window.deleteApplicant('${a.id}', '${candName}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-outline hover:text-error hover:bg-error-container/40 transition-colors" title="Delete Candidate">
+          <span class="material-symbols-outlined text-[18px]">delete</span>
         </button>
       </div>
     </td>
@@ -167,8 +183,18 @@ function renderApplicantRow(a) {
 
 function renderApplicantCard(a) {
   const isGoogleForm = a.source === 'Google Form';
+  const candName = `${a.firstName || ''} ${a.lastName || a.name || ''}`.trim() || 'Applicant';
   return `
   <div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer" onclick="window.viewCandidate('${a.id}')">
+    <div class="flex items-center justify-between pb-space-xs mb-space-xs border-b border-outline-variant/10" onclick="event.stopPropagation()">
+      <label class="flex items-center gap-2 cursor-pointer font-label-sm text-label-sm text-on-surface-variant" onclick="event.stopPropagation()">
+        <input type="checkbox" class="applicant-cb w-4 h-4 rounded border-outline-variant text-primary focus:ring-secondary cursor-pointer" data-id="${a.id}" data-name="${candName}" onclick="event.stopPropagation(); window.updateSelectedApplicantCount()"/>
+        <span>Select</span>
+      </label>
+      <button onclick="event.stopPropagation(); window.deleteApplicant('${a.id}', '${candName}')" class="text-outline hover:text-error p-1 flex items-center rounded hover:bg-error-container/30 transition-colors" title="Delete Candidate">
+        <span class="material-symbols-outlined text-[18px]">delete</span>
+      </button>
+    </div>
     <div class="flex items-start justify-between mb-space-sm">
       <div class="flex items-center gap-space-md min-w-0">
         <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-semibold text-sm shrink-0">
@@ -176,7 +202,7 @@ function renderApplicantCard(a) {
         </div>
         <div class="min-w-0">
           <div class="flex items-center gap-space-xs">
-            <h3 class="font-headline-sm text-headline-sm text-on-surface truncate">${a.firstName || ''} ${a.lastName || a.name || ''}</h3>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface truncate">${candName}</h3>
             ${isGoogleForm ? `<span class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 font-label-sm text-[10px] font-semibold flex items-center gap-0.5" title="Applied via Google Form"><span class="material-symbols-outlined text-[12px]">description</span>Form</span>` : ''}
           </div>
           <p class="font-body-sm text-body-sm text-on-surface-variant truncate">${a.jobTitle || a.appliedRole || 'General Application'}</p>
@@ -185,7 +211,7 @@ function renderApplicantCard(a) {
       ${window.statusBadge((a.stage || a.status || 'new').toLowerCase())}
     </div>
     <div class="flex items-center justify-between pt-space-sm border-t border-outline-variant/20">
-      <span class="font-body-sm text-body-sm text-outline">${a.email}</span>
+      <span class="font-body-sm text-body-sm text-outline">${a.email || '—'}</span>
       <span class="font-label-sm text-label-sm text-outline">${window.fmtDate(a.appliedDate || a.createdAt)}</span>
     </div>
   </div>`;
@@ -275,17 +301,71 @@ function attachEvents(container, jobs) {
     });
   });
 
-  container.querySelector('#clear-all-applicants-btn')?.addEventListener('click', () => {
-    window.confirmDialog('Are you sure you want to remove ALL current applicants? This action cannot be undone.', async () => {
+  window.updateSelectedApplicantCount = () => {
+    const checked = Array.from(container.querySelectorAll('.applicant-cb:checked')).map(cb => cb.dataset.id);
+    const uniqueIds = Array.from(new Set(checked));
+    const count = uniqueIds.length;
+    
+    const countEl = container.querySelector('#selected-count');
+    const countMobileEl = container.querySelector('#selected-count-mobile');
+    const btn = container.querySelector('#delete-selected-btn');
+    const btnMobile = container.querySelector('#delete-selected-btn-mobile');
+    const selectAll = container.querySelector('#select-all-applicants');
+
+    if (countEl) countEl.textContent = count;
+    if (countMobileEl) countMobileEl.textContent = count;
+
+    if (btn) {
+      if (count > 0) btn.classList.remove('hidden');
+      else btn.classList.add('hidden');
+    }
+    if (btnMobile) {
+      if (count > 0) btnMobile.classList.remove('hidden');
+      else btnMobile.classList.add('hidden');
+    }
+
+    const allCbs = container.querySelectorAll('.applicant-cb');
+    if (selectAll) {
+      selectAll.checked = allCbs.length > 0 && Array.from(allCbs).every(cb => cb.checked);
+    }
+  };
+
+  container.querySelector('#select-all-applicants')?.addEventListener('change', (e) => {
+    const checked = e.target.checked;
+    container.querySelectorAll('.applicant-cb').forEach(cb => { cb.checked = checked; });
+    window.updateSelectedApplicantCount();
+  });
+
+  const handleDeleteSelected = () => {
+    const checked = Array.from(container.querySelectorAll('.applicant-cb:checked')).map(cb => cb.dataset.id);
+    const uniqueIds = Array.from(new Set(checked));
+    if (uniqueIds.length === 0) return;
+
+    window.confirmDialog(`Are you sure you want to delete ${uniqueIds.length} selected candidate(s)? This action cannot be undone.`, async () => {
       try {
-        await window.api.delete('/applicants/all');
-        window.showToast('All current applicants removed successfully!', 'success');
+        await Promise.all(uniqueIds.map(id => window.api.delete(`/applicants/${id}`)));
+        window.showToast(`${uniqueIds.length} candidate(s) deleted successfully!`, 'success');
         window.loadPage('applicants');
       } catch {
-        window.showToast('Failed to clear applicants', 'error');
+        window.showToast('Failed to delete selected candidates', 'error');
       }
     });
-  });
+  };
+
+  container.querySelector('#delete-selected-btn')?.addEventListener('click', handleDeleteSelected);
+  container.querySelector('#delete-selected-btn-mobile')?.addEventListener('click', handleDeleteSelected);
+
+  window.deleteApplicant = (id, name) => {
+    window.confirmDialog(`Are you sure you want to delete ${name ? name.trim() : 'this candidate'}? This cannot be undone.`, async () => {
+      try {
+        await window.api.delete(`/applicants/${id}`);
+        window.showToast('Candidate deleted successfully!', 'success');
+        window.loadPage('applicants');
+      } catch {
+        window.showToast('Failed to delete candidate', 'error');
+      }
+    });
+  };
 
   const doSearch = window.debounce((q) => {
     const lq = q.toLowerCase();

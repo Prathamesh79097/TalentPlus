@@ -1,4 +1,4 @@
-import{_ as h}from"./index-fFXGqirX.js";import"https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";import"https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";import"https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";import"https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";async function r(e,a={}){let l=[],t=[];try{const n=a.jobId?`?jobId=${a.jobId}`:"";[l,t]=await Promise.all([window.api.get(`/applicants${n}`),window.api.get("/jobs?status=OPEN")])}catch{l=[],t=[]}e.innerHTML=$(l,t,a.jobId),A(e,t)}function $(e,a,l){return`
+import{_ as h}from"./index-C7y_1Zkn.js";import"https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";import"https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";import"https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";import"https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";async function f(e,a={}){let o=[],n=[];try{const t=a.jobId?`?jobId=${a.jobId}`:"";[o,n]=await Promise.all([window.api.get(`/applicants${t}`),window.api.get("/jobs?status=OPEN")])}catch{o=[],n=[]}e.innerHTML=$(o,n,a.jobId),C(e,n)}function $(e,a,o){return`
   <!-- ═══ DESKTOP ═══ -->
   <div class="hidden lg:block p-8 max-w-7xl mx-auto w-full">
     <div class="flex flex-col gap-space-xl">
@@ -8,9 +8,9 @@ import{_ as h}from"./index-fFXGqirX.js";import"https://www.gstatic.com/firebasej
           <p class="font-body-md text-body-md text-on-surface-variant">${e.length} candidates across all open roles</p>
         </div>
         <div class="flex items-center gap-space-sm">
-          <button id="clear-all-applicants-btn" class="h-10 px-space-md flex items-center gap-space-xs rounded-lg border border-error/30 text-error hover:bg-error-container/30 transition-colors font-body-sm text-body-sm">
-            <span class="material-symbols-outlined text-[18px]">delete_sweep</span>
-            <span>Clear All Applicants</span>
+          <button id="delete-selected-btn" class="hidden h-10 px-space-md flex items-center gap-space-xs rounded-lg bg-error text-on-error hover:opacity-90 transition-all font-body-sm text-body-sm shadow-sm font-medium">
+            <span class="material-symbols-outlined text-[18px]">delete</span>
+            <span>Delete Selected (<span id="selected-count">0</span>)</span>
           </button>
           <button id="add-applicant-btn" class="h-10 px-space-lg flex items-center gap-space-xs rounded-lg bg-primary text-on-primary font-body-sm text-body-sm font-semibold hover:bg-secondary transition-all shadow-md">
             <span class="material-symbols-outlined text-[18px]">person_add</span>
@@ -27,11 +27,11 @@ import{_ as h}from"./index-fFXGqirX.js";import"https://www.gstatic.com/firebasej
         </div>
         <select id="applicant-job-filter" class="h-10 px-space-md bg-surface-container-low rounded-lg text-on-surface text-body-sm focus:outline-none focus:ring-2 focus:ring-secondary appearance-none pr-8">
           <option value="">All Jobs</option>
-          ${a.map(t=>`<option value="${t.id}" ${l===t.id?"selected":""}>${t.title}</option>`).join("")}
+          ${a.map(n=>`<option value="${n.id}" ${o===n.id?"selected":""}>${n.title}</option>`).join("")}
         </select>
         <select id="applicant-status-filter" class="h-10 px-space-md bg-surface-container-low rounded-lg text-on-surface text-body-sm focus:outline-none focus:ring-2 focus:ring-secondary appearance-none pr-8">
           <option value="">All Stages</option>
-          ${["New","Screening","Interview","Selection","Offer","Hired","Rejected"].map(t=>`<option value="${t.toUpperCase()}">${t}</option>`).join("")}
+          ${["New","Screening","Interview","Selection","Offer","Hired","Rejected"].map(n=>`<option value="${n.toUpperCase()}">${n}</option>`).join("")}
         </select>
         <select id="applicant-sort" class="h-10 px-space-md bg-surface-container-low rounded-lg text-on-surface text-body-sm focus:outline-none focus:ring-2 focus:ring-secondary appearance-none pr-8">
           <option value="newest">Newest First</option>
@@ -46,7 +46,10 @@ import{_ as h}from"./index-fFXGqirX.js";import"https://www.gstatic.com/firebasej
         <table class="w-full">
           <thead class="bg-surface-container-low border-b border-outline-variant/30">
             <tr>
-              <th class="text-left px-space-xl py-space-md font-label-sm text-label-sm text-outline uppercase tracking-wider">Candidate</th>
+              <th class="w-12 px-4 py-space-md text-center">
+                <input type="checkbox" id="select-all-applicants" class="w-4 h-4 rounded border-outline-variant text-primary focus:ring-secondary cursor-pointer" title="Select All"/>
+              </th>
+              <th class="text-left px-space-md py-space-md font-label-sm text-label-sm text-outline uppercase tracking-wider">Candidate</th>
               <th class="text-left px-space-md py-space-md font-label-sm text-label-sm text-outline uppercase tracking-wider">Applied Role</th>
               <th class="text-left px-space-md py-space-md font-label-sm text-label-sm text-outline uppercase tracking-wider">Stage</th>
               <th class="text-left px-space-md py-space-md font-label-sm text-label-sm text-outline uppercase tracking-wider">Rating</th>
@@ -70,9 +73,15 @@ import{_ as h}from"./index-fFXGqirX.js";import"https://www.gstatic.com/firebasej
         <h1 class="font-headline-sm text-headline-sm text-on-surface">Applicants</h1>
         <p class="font-body-sm text-body-sm text-on-surface-variant">${e.length} candidates</p>
       </div>
-      <button id="add-applicant-btn-mobile" class="h-10 px-space-md flex items-center gap-space-xs rounded-lg bg-primary text-on-primary font-label-md text-label-md font-semibold active:scale-95 transition-transform">
-        <span class="material-symbols-outlined text-[18px]">person_add</span>
-      </button>
+      <div class="flex items-center gap-2">
+        <button id="delete-selected-btn-mobile" class="hidden h-10 px-space-md flex items-center gap-1 rounded-lg bg-error text-on-error font-label-md text-label-md font-semibold active:scale-95 transition-transform">
+          <span class="material-symbols-outlined text-[18px]">delete</span>
+          <span>(<span id="selected-count-mobile">0</span>)</span>
+        </button>
+        <button id="add-applicant-btn-mobile" class="h-10 px-space-md flex items-center gap-space-xs rounded-lg bg-primary text-on-primary font-label-md text-label-md font-semibold active:scale-95 transition-transform">
+          <span class="material-symbols-outlined text-[18px]">person_add</span>
+        </button>
+      </div>
     </div>
 
     <div class="relative">
@@ -82,34 +91,37 @@ import{_ as h}from"./index-fFXGqirX.js";import"https://www.gstatic.com/firebasej
 
     <!-- Stage Filter Pills -->
     <div class="flex gap-space-sm overflow-x-auto no-scrollbar -mx-margin px-margin pb-space-xs">
-      ${["All","New","Screening","Interview","Offer","Hired"].map((t,n)=>`
-        <button class="stage-pill shrink-0 px-space-md py-space-xs rounded-full font-label-md text-label-md transition-all ${n===0?"bg-primary text-on-primary":"bg-surface-container-lowest text-on-surface-variant border border-outline-variant/40"}" data-stage="${t==="All"?"":t.toUpperCase()}">${t}</button>
+      ${["All","New","Screening","Interview","Offer","Hired"].map((n,t)=>`
+        <button class="stage-pill shrink-0 px-space-md py-space-xs rounded-full font-label-md text-label-md transition-all ${t===0?"bg-primary text-on-primary":"bg-surface-container-lowest text-on-surface-variant border border-outline-variant/40"}" data-stage="${n==="All"?"":n.toUpperCase()}">${n}</button>
       `).join("")}
     </div>
 
     <div id="applicants-mobile-list" class="flex flex-col gap-space-md">
-      ${e.map(C).join("")}
+      ${e.map(A).join("")}
     </div>
   </div>
 
   <!-- Add/Edit Applicant Modal -->
   <div id="applicant-modal" class="modal-overlay hidden">
     <div class="modal-box">
-      ${p(a)}
+      ${x(a)}
     </div>
-  </div>`}function E(e){const a="★".repeat(Math.round(e.rating||0))+"☆".repeat(5-Math.round(e.rating||0)),l=e.source==="Google Form";return`
+  </div>`}function E(e){const a="★".repeat(Math.round(e.rating||0))+"☆".repeat(5-Math.round(e.rating||0)),o=e.source==="Google Form",n=`${e.firstName||""} ${e.lastName||e.name||""}`.trim()||"Applicant";return`
   <tr class="hover:bg-surface-container-low transition-colors cursor-pointer" onclick="window.viewCandidate('${e.id}')">
-    <td class="px-space-xl py-space-md">
+    <td class="w-12 px-4 py-space-md text-center" onclick="event.stopPropagation()">
+      <input type="checkbox" class="applicant-cb w-4 h-4 rounded border-outline-variant text-primary focus:ring-secondary cursor-pointer" data-id="${e.id}" data-name="${n}" onclick="event.stopPropagation(); window.updateSelectedApplicantCount()"/>
+    </td>
+    <td class="px-space-md py-space-md">
       <div class="flex items-center gap-space-md">
         <div class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-on-primary font-semibold text-sm shrink-0">
           ${(e.firstName||e.name||"C")[0]?.toUpperCase()}
         </div>
         <div>
           <div class="flex items-center gap-space-xs">
-            <p class="font-headline-sm text-headline-sm text-on-surface">${e.firstName||""} ${e.lastName||e.name||""}</p>
-            ${l?'<span class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 font-label-sm text-[10px] font-semibold flex items-center gap-0.5" title="Applied via Google Form"><span class="material-symbols-outlined text-[12px]">description</span>Form</span>':""}
+            <p class="font-headline-sm text-headline-sm text-on-surface">${n}</p>
+            ${o?'<span class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 font-label-sm text-[10px] font-semibold flex items-center gap-0.5" title="Applied via Google Form"><span class="material-symbols-outlined text-[12px]">description</span>Form</span>':""}
           </div>
-          <p class="font-body-sm text-body-sm text-outline">${e.email}</p>
+          <p class="font-body-sm text-body-sm text-outline">${e.email||"—"}</p>
         </div>
       </div>
     </td>
@@ -126,15 +138,27 @@ import{_ as h}from"./index-fFXGqirX.js";import"https://www.gstatic.com/firebasej
       <span class="font-body-sm text-body-sm text-outline">${window.fmtDate(e.appliedDate||e.createdAt)}</span>
     </td>
     <td class="px-space-xl py-space-md text-right">
-      <div class="flex items-center justify-end gap-space-sm" onclick="e => e.stopPropagation()">
+      <div class="flex items-center justify-end gap-space-sm" onclick="event.stopPropagation()">
         <button onclick="event.stopPropagation(); window.advanceCandidate('${e.id}', '${e.stage}')" class="px-space-md py-space-xs rounded-lg bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-container-high transition-colors">Advance</button>
-        <button onclick="event.stopPropagation(); window.viewCandidate('${e.id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-high">
+        <button onclick="event.stopPropagation(); window.viewCandidate('${e.id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-high" title="View Profile">
           <span class="material-symbols-outlined text-[18px]">open_in_new</span>
+        </button>
+        <button onclick="event.stopPropagation(); window.deleteApplicant('${e.id}', '${n}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-outline hover:text-error hover:bg-error-container/40 transition-colors" title="Delete Candidate">
+          <span class="material-symbols-outlined text-[18px]">delete</span>
         </button>
       </div>
     </td>
-  </tr>`}function C(e){const a=e.source==="Google Form";return`
+  </tr>`}function A(e){const a=e.source==="Google Form",o=`${e.firstName||""} ${e.lastName||e.name||""}`.trim()||"Applicant";return`
   <div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer" onclick="window.viewCandidate('${e.id}')">
+    <div class="flex items-center justify-between pb-space-xs mb-space-xs border-b border-outline-variant/10" onclick="event.stopPropagation()">
+      <label class="flex items-center gap-2 cursor-pointer font-label-sm text-label-sm text-on-surface-variant" onclick="event.stopPropagation()">
+        <input type="checkbox" class="applicant-cb w-4 h-4 rounded border-outline-variant text-primary focus:ring-secondary cursor-pointer" data-id="${e.id}" data-name="${o}" onclick="event.stopPropagation(); window.updateSelectedApplicantCount()"/>
+        <span>Select</span>
+      </label>
+      <button onclick="event.stopPropagation(); window.deleteApplicant('${e.id}', '${o}')" class="text-outline hover:text-error p-1 flex items-center rounded hover:bg-error-container/30 transition-colors" title="Delete Candidate">
+        <span class="material-symbols-outlined text-[18px]">delete</span>
+      </button>
+    </div>
     <div class="flex items-start justify-between mb-space-sm">
       <div class="flex items-center gap-space-md min-w-0">
         <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-semibold text-sm shrink-0">
@@ -142,7 +166,7 @@ import{_ as h}from"./index-fFXGqirX.js";import"https://www.gstatic.com/firebasej
         </div>
         <div class="min-w-0">
           <div class="flex items-center gap-space-xs">
-            <h3 class="font-headline-sm text-headline-sm text-on-surface truncate">${e.firstName||""} ${e.lastName||e.name||""}</h3>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface truncate">${o}</h3>
             ${a?'<span class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 font-label-sm text-[10px] font-semibold flex items-center gap-0.5" title="Applied via Google Form"><span class="material-symbols-outlined text-[12px]">description</span>Form</span>':""}
           </div>
           <p class="font-body-sm text-body-sm text-on-surface-variant truncate">${e.jobTitle||e.appliedRole||"General Application"}</p>
@@ -151,10 +175,10 @@ import{_ as h}from"./index-fFXGqirX.js";import"https://www.gstatic.com/firebasej
       ${window.statusBadge((e.stage||e.status||"new").toLowerCase())}
     </div>
     <div class="flex items-center justify-between pt-space-sm border-t border-outline-variant/20">
-      <span class="font-body-sm text-body-sm text-outline">${e.email}</span>
+      <span class="font-body-sm text-body-sm text-outline">${e.email||"—"}</span>
       <span class="font-label-sm text-label-sm text-outline">${window.fmtDate(e.appliedDate||e.createdAt)}</span>
     </div>
-  </div>`}function p(e,a={}){return`
+  </div>`}function x(e,a={}){return`
   <div class="p-6 flex flex-col gap-space-lg">
     <div class="flex items-center justify-between">
       <h2 class="font-headline-md text-headline-md text-on-surface">${a.id?"Edit Candidate":"Add Candidate"}</h2>
@@ -189,7 +213,7 @@ import{_ as h}from"./index-fFXGqirX.js";import"https://www.gstatic.com/firebasej
           <label class="font-label-md text-label-md text-on-surface-variant">Applied Role *</label>
           <select id="app-job" required class="h-11 px-space-md bg-surface-container-low rounded-lg text-on-surface text-body-md focus:outline-none focus:ring-2 focus:ring-secondary appearance-none">
             <option value="">Select job</option>
-            ${e.map(l=>`<option value="${l.id}" ${a.jobId===l.id?"selected":""}>${l.title}</option>`).join("")}
+            ${e.map(o=>`<option value="${o.id}" ${a.jobId===o.id?"selected":""}>${o.title}</option>`).join("")}
           </select>
         </div>
         <div class="flex flex-col gap-space-xs">
@@ -226,4 +250,4 @@ import{_ as h}from"./index-fFXGqirX.js";import"https://www.gstatic.com/firebasej
         </button>
       </div>
     </form>
-  </div>`}function A(e,a){["add-applicant-btn","add-applicant-btn-mobile"].forEach(t=>{e.querySelector(`#${t}`)?.addEventListener("click",()=>{window.openModal(p(a)),L(a)})}),e.querySelector("#clear-all-applicants-btn")?.addEventListener("click",()=>{window.confirmDialog("Are you sure you want to remove ALL current applicants? This action cannot be undone.",async()=>{try{await window.api.delete("/applicants/all"),window.showToast("All current applicants removed successfully!","success"),window.loadPage("applicants")}catch{window.showToast("Failed to clear applicants","error")}})});const l=window.debounce(t=>{const n=t.toLowerCase();e.querySelectorAll("#applicants-tbody tr").forEach(s=>s.style.display=s.textContent.toLowerCase().includes(n)?"":"none"),e.querySelectorAll("#applicants-mobile-list > div").forEach(s=>s.style.display=s.textContent.toLowerCase().includes(n)?"":"none")},300);e.querySelector("#applicant-search")?.addEventListener("input",t=>l(t.target.value)),e.querySelector("#applicant-search-mobile")?.addEventListener("input",t=>l(t.target.value)),e.querySelector("#applicant-job-filter")?.addEventListener("change",()=>r(e,{jobId:e.querySelector("#applicant-job-filter").value})),e.querySelector("#applicant-status-filter")?.addEventListener("change",()=>r(e)),e.querySelectorAll(".stage-pill").forEach(t=>{t.addEventListener("click",()=>{e.querySelectorAll(".stage-pill").forEach(s=>{s.classList.remove("bg-primary","text-on-primary"),s.classList.add("bg-surface-container-lowest","text-on-surface-variant","border","border-outline-variant/40")}),t.classList.add("bg-primary","text-on-primary"),t.classList.remove("bg-surface-container-lowest","text-on-surface-variant");const n=t.dataset.stage;e.querySelectorAll("#applicants-mobile-list > div").forEach(s=>{s.style.display=!n||s.textContent.toUpperCase().includes(n)?"":"none"})})}),window.viewCandidate=t=>window.loadPage("candidate-profile",{id:t}),window.advanceCandidate=async(t,n)=>{const s=["NEW","SCREENING","INTERVIEW","SELECTION","OFFER","HIRED"],d=s.indexOf(n?.toUpperCase()||"NEW"),i=s[Math.min(d+1,s.length-1)];try{await window.api.patch(`/applicants/${t}/stage`,{stage:i}),window.showToast(`Candidate advanced to ${i}`,"success"),window.loadPage("applicants")}catch{window.showToast("Failed to advance candidate","error")}}}function L(e){const a=document.getElementById("applicant-form");a&&a.addEventListener("submit",async l=>{l.preventDefault();const t=document.getElementById("applicant-submit"),n=document.getElementById("applicant-form-error");t.disabled=!0,t.innerHTML='<div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>',n.classList.add("hidden");const s=document.getElementById("app-job").value,d=e.find(o=>o.id===s),i={firstName:document.getElementById("app-firstname").value,lastName:document.getElementById("app-lastname").value,email:document.getElementById("app-email").value,phone:document.getElementById("app-phone").value,jobId:s,jobTitle:d?.title,yearsExperience:parseInt(document.getElementById("app-exp").value)||0,currentCompany:document.getElementById("app-company").value,linkedinUrl:document.getElementById("app-linkedin").value,notes:document.getElementById("app-notes").value,stage:"NEW"},c=document.getElementById("app-resume").files[0];if(c)try{const{getStorage:o,ref:u,uploadBytes:m,getDownloadURL:f}=await h(async()=>{const{getStorage:g,ref:v,uploadBytes:y,getDownloadURL:w}=await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js");return{getStorage:g,ref:v,uploadBytes:y,getDownloadURL:w}},[]),x=u(window.firebaseStorage,`resumes/${Date.now()}_${c.name}`),b=await m(x,c);i.resumeUrl=await f(b.ref)}catch(o){console.warn("Resume upload failed:",o)}try{await window.api.post("/applicants",i),window.showToast("Candidate added successfully!","success"),window.closeModal(),window.loadPage("applicants")}catch(o){n.textContent=o.message,n.classList.remove("hidden"),t.disabled=!1,t.innerHTML='<span class="material-symbols-outlined text-[18px]">save</span> Add Candidate'}})}export{r as render};
+  </div>`}function C(e,a){["add-applicant-btn","add-applicant-btn-mobile"].forEach(t=>{e.querySelector(`#${t}`)?.addEventListener("click",()=>{window.openModal(x(a)),S(a)})}),window.updateSelectedApplicantCount=()=>{const t=Array.from(e.querySelectorAll(".applicant-cb:checked")).map(p=>p.dataset.id),s=Array.from(new Set(t)).length,c=e.querySelector("#selected-count"),d=e.querySelector("#selected-count-mobile"),i=e.querySelector("#delete-selected-btn"),r=e.querySelector("#delete-selected-btn-mobile"),u=e.querySelector("#select-all-applicants");c&&(c.textContent=s),d&&(d.textContent=s),i&&(s>0?i.classList.remove("hidden"):i.classList.add("hidden")),r&&(s>0?r.classList.remove("hidden"):r.classList.add("hidden"));const m=e.querySelectorAll(".applicant-cb");u&&(u.checked=m.length>0&&Array.from(m).every(p=>p.checked))},e.querySelector("#select-all-applicants")?.addEventListener("change",t=>{const l=t.target.checked;e.querySelectorAll(".applicant-cb").forEach(s=>{s.checked=l}),window.updateSelectedApplicantCount()});const o=()=>{const t=Array.from(e.querySelectorAll(".applicant-cb:checked")).map(s=>s.dataset.id),l=Array.from(new Set(t));l.length!==0&&window.confirmDialog(`Are you sure you want to delete ${l.length} selected candidate(s)? This action cannot be undone.`,async()=>{try{await Promise.all(l.map(s=>window.api.delete(`/applicants/${s}`))),window.showToast(`${l.length} candidate(s) deleted successfully!`,"success"),window.loadPage("applicants")}catch{window.showToast("Failed to delete selected candidates","error")}})};e.querySelector("#delete-selected-btn")?.addEventListener("click",o),e.querySelector("#delete-selected-btn-mobile")?.addEventListener("click",o),window.deleteApplicant=(t,l)=>{window.confirmDialog(`Are you sure you want to delete ${l?l.trim():"this candidate"}? This cannot be undone.`,async()=>{try{await window.api.delete(`/applicants/${t}`),window.showToast("Candidate deleted successfully!","success"),window.loadPage("applicants")}catch{window.showToast("Failed to delete candidate","error")}})};const n=window.debounce(t=>{const l=t.toLowerCase();e.querySelectorAll("#applicants-tbody tr").forEach(s=>s.style.display=s.textContent.toLowerCase().includes(l)?"":"none"),e.querySelectorAll("#applicants-mobile-list > div").forEach(s=>s.style.display=s.textContent.toLowerCase().includes(l)?"":"none")},300);e.querySelector("#applicant-search")?.addEventListener("input",t=>n(t.target.value)),e.querySelector("#applicant-search-mobile")?.addEventListener("input",t=>n(t.target.value)),e.querySelector("#applicant-job-filter")?.addEventListener("change",()=>f(e,{jobId:e.querySelector("#applicant-job-filter").value})),e.querySelector("#applicant-status-filter")?.addEventListener("change",()=>f(e)),e.querySelectorAll(".stage-pill").forEach(t=>{t.addEventListener("click",()=>{e.querySelectorAll(".stage-pill").forEach(s=>{s.classList.remove("bg-primary","text-on-primary"),s.classList.add("bg-surface-container-lowest","text-on-surface-variant","border","border-outline-variant/40")}),t.classList.add("bg-primary","text-on-primary"),t.classList.remove("bg-surface-container-lowest","text-on-surface-variant");const l=t.dataset.stage;e.querySelectorAll("#applicants-mobile-list > div").forEach(s=>{s.style.display=!l||s.textContent.toUpperCase().includes(l)?"":"none"})})}),window.viewCandidate=t=>window.loadPage("candidate-profile",{id:t}),window.advanceCandidate=async(t,l)=>{const s=["NEW","SCREENING","INTERVIEW","SELECTION","OFFER","HIRED"],c=s.indexOf(l?.toUpperCase()||"NEW"),d=s[Math.min(c+1,s.length-1)];try{await window.api.patch(`/applicants/${t}/stage`,{stage:d}),window.showToast(`Candidate advanced to ${d}`,"success"),window.loadPage("applicants")}catch{window.showToast("Failed to advance candidate","error")}}}function S(e){const a=document.getElementById("applicant-form");a&&a.addEventListener("submit",async o=>{o.preventDefault();const n=document.getElementById("applicant-submit"),t=document.getElementById("applicant-form-error");n.disabled=!0,n.innerHTML='<div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>',t.classList.add("hidden");const l=document.getElementById("app-job").value,s=e.find(i=>i.id===l),c={firstName:document.getElementById("app-firstname").value,lastName:document.getElementById("app-lastname").value,email:document.getElementById("app-email").value,phone:document.getElementById("app-phone").value,jobId:l,jobTitle:s?.title,yearsExperience:parseInt(document.getElementById("app-exp").value)||0,currentCompany:document.getElementById("app-company").value,linkedinUrl:document.getElementById("app-linkedin").value,notes:document.getElementById("app-notes").value,stage:"NEW"},d=document.getElementById("app-resume").files[0];if(d)try{const{getStorage:i,ref:r,uploadBytes:u,getDownloadURL:m}=await h(async()=>{const{getStorage:g,ref:y,uploadBytes:v,getDownloadURL:w}=await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js");return{getStorage:g,ref:y,uploadBytes:v,getDownloadURL:w}},[]),p=r(window.firebaseStorage,`resumes/${Date.now()}_${d.name}`),b=await u(p,d);c.resumeUrl=await m(b.ref)}catch(i){console.warn("Resume upload failed:",i)}try{await window.api.post("/applicants",c),window.showToast("Candidate added successfully!","success"),window.closeModal(),window.loadPage("applicants")}catch(i){t.textContent=i.message,t.classList.remove("hidden"),n.disabled=!1,n.innerHTML='<span class="material-symbols-outlined text-[18px]">save</span> Add Candidate'}})}export{f as render};
