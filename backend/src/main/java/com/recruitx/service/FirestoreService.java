@@ -191,4 +191,14 @@ public class FirestoreService {
         ref.set(data).get();
         return data;
     }
+
+    /**
+     * Delete document in subcollection.
+     */
+    public void deleteSubcollectionDocument(String collection, String docId,
+                                            String subcollection, String subDocId)
+            throws ExecutionException, InterruptedException {
+        getFirestore().collection(collection).document(docId)
+                .collection(subcollection).document(subDocId).delete().get();
+    }
 }

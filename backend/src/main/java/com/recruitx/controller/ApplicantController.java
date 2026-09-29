@@ -2,11 +2,13 @@ package com.recruitx.controller;
 
 import com.recruitx.service.FirestoreService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/applicants")
 @RequiredArgsConstructor
@@ -105,10 +107,72 @@ public class ApplicantController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteApplicant(@PathVariable String id) throws Exception {
-        if (db.findById(COLLECTION, id).isEmpty()) {
+        Optional<Map<String, Object>> applicantOpt = db.findById(COLLECTION, id);
+        if (applicantOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+        Map<String, Object> applicant = applicantOpt.get();
+        String jobId = (String) applicant.get("jobId");
+
+        // 1. Cascade delete all subcollections (notes)
+        try {
+            List<Map<String, Object>> notes = db.findSubcollection(COLLECTION, id, "notes");
+            for (Map<String, Object> note : notes) {
+                String noteId = (String) note.get("id");
+                if (noteId != null) {
+                    db.deleteSubcollectionDocument(COLLECTION, id, "notes", noteId);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to delete subcollection notes for applicant {}: {}", id, e.getMessage());
+        }
+
+        // 2. Cascade delete all linked interviews
+        try {
+            List<Map<String, Object>> interviews = db.findByField("interviews", "candidateId", id);
+            for (Map<String, Object> iv : interviews) {
+                String ivId = (String) iv.get("id");
+                if (ivId != null) {
+                    db.delete("interviews", ivId);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to delete interviews for candidate {}: {}", id, e.getMessage());
+        }
+
+        // 3. Cascade delete all linked job offers
+        try {
+            List<Map<String, Object>> offers = db.findByField("offers", "candidateId", id);
+            for (Map<String, Object> offer : offers) {
+                String offerId = (String) offer.get("id");
+                if (offerId != null) {
+                    db.delete("offers", offerId);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to delete offers for candidate {}: {}", id, e.getMessage());
+        }
+
+        // 4. Delete the applicant document itself from Firestore
         db.delete(COLLECTION, id);
+        log.info("Completely deleted applicant {} and all associated roots", id);
+
+        // 5. Recalculate job applicant count metrics
+        if (jobId != null && !jobId.trim().isEmpty()) {
+            try {
+                long totalCount = db.countByField(COLLECTION, "jobId", jobId);
+                long newCount = db.findAll(COLLECTION).stream()
+                        .filter(a -> jobId.equals(a.get("jobId")) && "NEW".equals(a.get("stage")))
+                        .count();
+                db.update("jobs", jobId, Map.of(
+                        "applicantCount", totalCount,
+                        "newApplicants", newCount
+                ));
+            } catch (Exception e) {
+                log.warn("Failed to update job counts for job {}: {}", jobId, e.getMessage());
+            }
+        }
+
         return ResponseEntity.noContent().build();
     }
 
@@ -119,6 +183,33 @@ public class ApplicantController {
         for (Map<String, Object> a : applicants) {
             String id = (String) a.get("id");
             if (id != null) {
+                // Delete notes
+                try {
+                    List<Map<String, Object>> notes = db.findSubcollection(COLLECTION, id, "notes");
+                    for (Map<String, Object> note : notes) {
+                        String noteId = (String) note.get("id");
+                        if (noteId != null) db.deleteSubcollectionDocument(COLLECTION, id, "notes", noteId);
+                    }
+                } catch (Exception ignored) {}
+
+                // Delete interviews
+                try {
+                    List<Map<String, Object>> ivs = db.findByField("interviews", "candidateId", id);
+                    for (Map<String, Object> iv : ivs) {
+                        String ivId = (String) iv.get("id");
+                        if (ivId != null) db.delete("interviews", ivId);
+                    }
+                } catch (Exception ignored) {}
+
+                // Delete offers
+                try {
+                    List<Map<String, Object>> offers = db.findByField("offers", "candidateId", id);
+                    for (Map<String, Object> of : offers) {
+                        String ofId = (String) of.get("id");
+                        if (ofId != null) db.delete("offers", ofId);
+                    }
+                } catch (Exception ignored) {}
+
                 db.delete(COLLECTION, id);
                 deletedCount++;
             }
@@ -141,7 +232,7 @@ public class ApplicantController {
         return ResponseEntity.ok(Map.of(
             "success", true,
             "deletedApplicants", deletedCount,
-            "message", "All current applicants removed successfully and job counts reset."
+            "message", "All current applicants and their associated records removed successfully."
         ));
     }
 

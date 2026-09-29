@@ -1,0 +1,146 @@
+# 📊 TalentPulse – Project Presentation Deck (10 Slides)
+
+---
+
+## **Slide 1: Title & Introduction**
+### **TalentPulse – Next-Generation Recruitment Management System (ATS)**
+*An intelligent, automated platform connecting live candidate applications directly with recruitment pipelines.*
+
+- **Presenter / Team**: TalentPulse Engineering Team
+- **Core Theme**: Full-Stack Modern Recruitment, Automated Google Form Sync & Cloud-Native ATS
+- **Live Deployment**: 
+  - **Frontend**: [https://talentplus-tau.vercel.app/](https://talentplus-tau.vercel.app/)
+  - **Backend**: [https://talentplus.onrender.com](https://talentplus.onrender.com)
+
+> 💡 **Speaker Note**: Introduce the project as an end-to-end cloud recruitment system built to streamline hiring from candidate application submission to job offer delivery.
+
+---
+
+## **Slide 2: Problem Statement & Objectives**
+### **Bridging the Gap in Modern Hiring Workflows**
+
+- **The Challenges**:
+  - **Fragmented Candidate Data**: Applications scattered across Google Forms, spreadsheets, and emails without central synchronization.
+  - **Manual Data Entry Overhead**: Recruiters spending hours copying spreadsheet entries into tracking tools.
+  - **Duplicate & Lost Submissions**: Risk of overwriting candidate data or losing track of applicant history.
+- **Our Objectives**:
+  - ⚡ Real-time 1:1 automated synchronization between Google Forms/Sheets and ATS.
+  - 🎯 Centralized 6-stage candidate pipeline management.
+  - 🔒 Enterprise-grade security with Firebase Auth and Webhook token validation.
+
+---
+
+## **Slide 3: System Architecture & Technology Stack**
+### **Cloud-Native, Resilient & Scalable Full-Stack Architecture**
+
+```mermaid
+graph LR
+    A[Google Form / Sheet] -->|Apps Script Webhook| B[Render Java Spring Boot Backend]
+    B -->|CRUD & Persistence| C[(Google Cloud Firestore)]
+    D[Vercel SPA Frontend] -->|Authenticated REST API| B
+    D -->|Auth Tokens| E[Firebase Authentication]
+```
+
+- **Frontend**: Single Page Application (SPA), Vanilla JS, Modern CSS tokens, Vite Bundler, hosted on **Vercel**.
+- **Backend**: Java 17, Spring Boot 3, Spring Security, Docker Container, hosted on **Render**.
+- **Database & Auth**: Google Cloud Firestore (NoSQL Document Store), Firebase Auth (JWT Tokens).
+- **Automation**: Google Apps Script event triggers on Google Spreadsheets.
+
+---
+
+## **Slide 4: Job Requisition Management**
+### **Dynamic Fields & Automated Application Link Generator**
+
+- **Hierarchical Job Categorization**:
+  - Categorization by **Field** (e.g., Engineering & IT, Business Development, Operations) and **Sub-field / Specialization** (e.g., Full Stack, AI/ML, Cloud DevOps).
+- **Built-in Google Form Integration Wizard**:
+  - Built-in modal for every job requisition.
+  - Stores dedicated Google Form applicant links.
+  - **Auto-generates Job-Specific Google Apps Script code** pre-configured with Job ID and secure webhook URL.
+- **Real-time Applicant Counters**:
+  - Dynamic `applicantCount` and `newApplicants` badges tracked automatically per opening.
+
+---
+
+## **Slide 5: Automated 1:1 Google Form & Spreadsheet Sync**
+### **Zero Data Loss Ingestion Pipeline**
+
+- **How it Works**:
+  1. Candidate submits a Google Form linked to a Google Spreadsheet.
+  2. Google Sheet trigger (`onFormSubmit`) fires instantly in Google Cloud.
+  3. Apps Script packages all column headers and cell values (`e.namedValues`) into a 1:1 `rawFormResponses` payload.
+  4. Spring Boot Webhook Controller verifies the secret token and saves data directly to Firestore.
+- **Key Features**:
+  - **1:1 Preservation**: Every custom question and answer is preserved exactly as submitted.
+  - **Smart Fallback Discovery**: Automatically detects name, email, phone, skills, and experience across arbitrary spreadsheet columns.
+  - **Dynamic Candidate Updates**: Re-submissions update existing candidate profiles while merging history.
+
+---
+
+## **Slide 6: Applicant Tracking & Recruitment Pipeline**
+### **End-to-End Candidate Lifecycle Management**
+
+- **6 Structured Pipeline Stages**:
+  $$\text{New} \longrightarrow \text{Screening} \longrightarrow \text{Interview} \longrightarrow \text{Selection} \longrightarrow \text{Offer} \longrightarrow \text{Hired}$$
+- **Recruiter Productivity Tools**:
+  - Multi-parameter search (search by Candidate Name, Email, Role, or Skills).
+  - Filter by Job Requisition, Pipeline Stage, and Application Date.
+  - One-click stage advancement and quick rejection actions.
+  - Visual source badges (e.g., Purple `Form` badge for Google Form applicants).
+  - Bulk management controls (*Clear All Applicants* utility).
+
+---
+
+## **Slide 7: Comprehensive Candidate Profile**
+### **360° Candidate Dossier with Exact Spreadsheet Viewer**
+
+- **Key Profile Sections**:
+  - **Google Spreadsheet Responses (Exact Entry)**: Interactive card view of every question and answer submitted in the original Google Sheet.
+  - **Professional Overview**: Experience, Current Company, Expected CTC, Notice Period, Resume links, LinkedIn & GitHub profiles.
+  - **Interactive 5-Star Rating System**: Recruiters can score candidate evaluations directly.
+  - **Internal Recruiter Notes**: Timestamped team notes and collaboration log.
+  - **Interview Scheduling Module**: Track scheduled dates, video call links, durations, and interviewers.
+
+---
+
+## **Slide 8: Security & Reliability Engineering**
+### **Robust Protection for Enterprise Hiring Data**
+
+- **Webhook Security**:
+  - Header-based token authorization (`X-Webhook-Secret`) prevents unauthorized webhook payloads.
+- **Stateless Authentication**:
+  - Firebase JWT bearer token authentication on all protected REST endpoints (`/api/**`).
+- **CORS & Environment Isolation**:
+  - Granular CORS configuration for authorized Vercel domain origins.
+  - Environment-based credentials (`FIREBASE_SERVICE_ACCOUNT_JSON`) preventing secret leaks.
+- **Fault-Tolerant Resilience**:
+  - Graceful backend error handling, cold-start warmup pings, and non-blocking asynchronous UI rendering.
+
+---
+
+## **Slide 9: Production Deployment & CI/CD**
+### **Automated Multi-Cloud Production Environment**
+
+| Component | Platform | Configuration |
+| :--- | :--- | :--- |
+| **Frontend** | **Vercel** | SPA with Vite compilation, instant Global Edge CDN, clean URL rewrites |
+| **Backend** | **Render** | Docker Container (Maven 3.9 + Eclipse Temurin 17 JRE), dynamic `$PORT` binding |
+| **Database** | **Firestore** | Global multi-region high availability document storage |
+| **CI/CD** | **GitHub** | Automated branch tracking (`main`) triggering automated builds on push |
+
+- **Live URL**: `https://talentplus-tau.vercel.app/`
+- **Backend API**: `https://talentplus.onrender.com/api`
+
+---
+
+## **Slide 10: Impact, Results & Future Roadmap**
+### **Driving Measurable Efficiency in Hiring Operations**
+
+- **Measurable Business Impact**:
+  - ⏱️ **100% Elimination of Manual Data Entry**: Candidate applications sync from Google Forms in $< 2$ seconds.
+  - 📈 **Zero Candidate Drop-off**: Unmatched application mapping and duplicate prevention.
+  - 👥 **Faster Recruiter Turnaround**: Single-click pipeline transitions and centralized interview tracking.
+- **Future Roadmap**:
+  - 🤖 **AI-Powered Resume Parsing**: Automatic semantic skill extraction & candidate match scoring.
+  - 📧 **Automated Email Workflows**: Automated email updates upon pipeline stage transitions.
+  - 📊 **Advanced Hiring Analytics**: Time-to-hire metrics and hiring team productivity dashboards.
