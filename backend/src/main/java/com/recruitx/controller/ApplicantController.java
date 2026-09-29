@@ -1,5 +1,6 @@
 package com.recruitx.controller;
 
+import com.recruitx.service.EmailService;
 import com.recruitx.service.FirestoreService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import java.util.*;
 public class ApplicantController {
 
     private final FirestoreService db;
+    private final EmailService emailService;
     private static final String COLLECTION = "applicants";
 
     @GetMapping
@@ -67,6 +69,17 @@ public class ApplicantController {
         body.put("appliedDate", new Date().toInstant().toString());
 
         Map<String, Object> applicant = db.create(COLLECTION, body);
+
+        // Send confirmation email
+        try {
+            String email = (String) applicant.get("email");
+            String firstName = (String) applicant.getOrDefault("firstName", "Candidate");
+            String jobTitle = (String) applicant.getOrDefault("jobTitle", applicant.getOrDefault("appliedRole", "General Application"));
+            emailService.sendApplicationConfirmationEmail(email, firstName, jobTitle, new Date().toInstant());
+        } catch (Exception e) {
+            log.warn("Could not dispatch confirmation email: {}", e.getMessage());
+        }
+
         return ResponseEntity.ok(applicant);
     }
 

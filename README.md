@@ -165,6 +165,6 @@ python -m http.server 5500
 - 📅 **Interviews** – Schedule with week view, video links
 - ✅ **Selection** – Final hire/reject decisions with assessment
 - 📋 **Job Offers** – Send, accept, decline offers
-- 👤 **Candidate Profiles** – Full detail with pipeline progress, notes, star rating
+- 📧 **Automated Candidate Email Confirmations** – Instant email receipt sent to applicants when applying via Google Forms / direct application
 - 📈 **Reports** – Department & stage analytics
 - 📱 **Responsive** – Fully responsive desktop + mobile design

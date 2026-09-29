@@ -1,5 +1,6 @@
 package com.recruitx.controller;
 
+import com.recruitx.service.EmailService;
 import com.recruitx.service.FirestoreService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import java.util.*;
 public class GoogleFormWebhookController {
 
     private final FirestoreService db;
+    private final EmailService emailService;
 
     @Value("${google.webhook.secret:talentpulse-secret-key}")
     private String expectedSecret;
@@ -238,6 +240,13 @@ public class GoogleFormWebhookController {
 
             // Update job applicant count
             updateJobApplicantCount(jobId);
+
+            // Send confirmation email to applicant
+            try {
+                emailService.sendApplicationConfirmationEmail(email, firstName, jobTitle, Instant.now());
+            } catch (Exception mailEx) {
+                log.warn("Failed to dispatch confirmation email to {}: {}", email, mailEx.getMessage());
+            }
 
             return ResponseEntity.ok(Map.of(
                     "success", true,
