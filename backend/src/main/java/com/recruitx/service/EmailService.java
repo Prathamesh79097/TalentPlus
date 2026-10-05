@@ -21,16 +21,16 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${spring.mail.username:}")
+    @Value("${spring.mail.username:talentpulseteam@gmail.com}")
     private String mailUsername;
 
     @Value("${app.mail.enabled:true}")
     private boolean mailEnabled;
 
-    @Value("${app.mail.from-email:noreply@talentpulse.com}")
+    @Value("${app.mail.from-email:talentpulseteam@gmail.com}")
     private String fromEmail;
 
-    @Value("${app.mail.from-name:TalentPulse Recruitment}")
+    @Value("${app.mail.from-name:TalentPulseTeam}")
     private String fromName;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy 'at' hh:mm a (z)")
@@ -93,7 +93,7 @@ public class EmailService {
                 + "Please wait for our recruiters' decision. We will reach out to you via email regarding the next steps in our hiring process.\n\n"
                 + "We wish you all the very best!\n\n"
                 + "Warm regards,\n"
-                + "TalentPulse Recruitment Team\n"
+                + "TalentPulseTeam\n"
                 + "https://talentpulse.app";
     }
 
@@ -155,7 +155,7 @@ public class EmailService {
                 + "              <!-- Signature -->\n"
                 + "              <div style=\"border-top: 1px solid #e2e8f0; padding-top: 20px;\">\n"
                 + "                <p style=\"margin: 0; font-size: 14px; color: #334155; font-weight: 600;\">Warm regards,</p>\n"
-                + "                <p style=\"margin: 2px 0 0 0; font-size: 14px; color: #64748b;\">TalentPulse Recruitment Team</p>\n"
+                + "                <p style=\"margin: 2px 0 0 0; font-size: 14px; color: #64748b;\">TalentPulseTeam</p>\n"
                 + "              </div>\n"
                 + "            </td>\n"
                 + "          </tr>\n"

@@ -8,13 +8,26 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 20MB
+  mail:
+    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:talentpulseteam@gmail.com}
+    password: ${SPRING_MAIL_PASSWORD:gtzlvymqsvpkvqtk}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 
 # Firebase configuration
 firebase:
   # Path to your service account key JSON downloaded from Firebase Console
-  # Go to: Firebase Console → Project Settings → Service Accounts → Generate New Private Key
   service-account-path: classpath:firebase-service-account.json
-  # OR use environment variable: GOOGLE_APPLICATION_CREDENTIALS
   project-id: talentpulse-f1225
 
 # CORS - allow frontend dev server
@@ -31,34 +44,15 @@ google:
   webhook:
     secret: ${GOOGLE_WEBHOOK_SECRET:talentpulse-secret-key}
 
-# Spring Mail Configuration
-spring:
-  mail:
-    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
-    port: ${SPRING_MAIL_PORT:587}
-    username: ${SPRING_MAIL_USERNAME:}
-    password: ${SPRING_MAIL_PASSWORD:}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-            required: true
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
-
 # App custom mail settings
 app:
   mail:
     enabled: ${APP_MAIL_ENABLED:true}
-    from-email: ${APP_MAIL_FROM:noreply@talentpulse.com}
-    from-name: ${APP_MAIL_FROM_NAME:TalentPulse Recruitment Team}
+    from-email: ${APP_MAIL_FROM:talentpulseteam@gmail.com}
+    from-name: ${APP_MAIL_FROM_NAME:TalentPulseTeam}
 
 # Logging
 logging:
   level:
     com.recruitx: DEBUG
     org.springframework.security: DEBUG
-

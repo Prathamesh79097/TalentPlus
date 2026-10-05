@@ -327,6 +327,74 @@ function onFormSubmit(e) {
   } catch (err) {
     Logger.log("Network error sending webhook: " + err.toString());
   }
+
+  // Send instant confirmation email to applicant via Google Apps Script (MailApp)
+  if (emailVal && emailVal.indexOf("@") !== -1) {
+    try {
+      const applicantName = payload.firstName || "Applicant";
+      const jobRoleName = "${o.title||"General Application"}";
+      const submissionTime = new Date().toLocaleString();
+      const subject = "Application Received: " + jobRoleName + " – TalentPulse";
+      
+      const plainText = "Dear " + applicantName + ",
+
+"
+        + "Thank you for applying for the position of " + jobRoleName + " at TalentPulse.
+
+"
+        + "We have successfully received your application on " + submissionTime + ".
+
+"
+        + "What happens next?
+"
+        + "Our recruitment team is currently reviewing your profile and credentials against the position requirements. Please wait for the recruiters' decision. We will keep you updated on the next steps.
+
+"
+        + "All the best with your application!
+
+"
+        + "Warm regards,
+"
+        + "TalentPulse Recruitment Team";
+
+      const htmlBody = '<div style="font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">'
+        + '<div style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 30px 24px; text-align: center; color: #ffffff;">'
+        + '<h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">TalentPulse</h1>'
+        + '<p style="margin: 4px 0 0 0; font-size: 13px; opacity: 0.9;">Recruitment Management System</p>'
+        + '</div>'
+        + '<div style="padding: 28px 24px;">'
+        + '<h2 style="font-size: 18px; color: #0f172a; margin: 0 0 14px 0;">Dear ' + applicantName + ',</h2>'
+        + '<p style="font-size: 14px; line-height: 1.6; color: #334155; margin: 0 0 18px 0;">Thank you for your interest in joining our team! We have successfully received your job application.</p>'
+        + '<div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px 18px; margin: 0 0 20px 0;">'
+        + '<div style="font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">Applied Role</div>'
+        + '<div style="font-size: 16px; font-weight: 700; color: #4f46e5; margin-bottom: 12px;">' + jobRoleName + '</div>'
+        + '<div style="font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">Submission Time</div>'
+        + '<div style="font-size: 14px; color: #0f172a; font-weight: 500;">' + submissionTime + '</div>'
+        + '</div>'
+        + '<div style="border-left: 4px solid #4f46e5; padding-left: 14px; margin: 0 0 20px 0;">'
+        + '<h4 style="margin: 0 0 4px 0; font-size: 14px; color: #0f172a;">What's Next?</h4>'
+        + '<p style="margin: 0; font-size: 13px; line-height: 1.5; color: #475569;">Our recruitment team is currently reviewing your profile, background, and skillset against the job criteria. <b>Please wait for the recruiters' decision.</b> We will keep you updated on the next steps.</p>'
+        + '</div>'
+        + '<p style="font-size: 14px; line-height: 1.6; color: #334155; margin: 0 0 22px 0;">All the best with your application!</p>'
+        + '<div style="border-top: 1px solid #e2e8f0; padding-top: 16px;">'
+        + '<p style="margin: 0; font-size: 13px; font-weight: 600; color: #334155;">Warm regards,</p>'
+        + '<p style="margin: 2px 0 0 0; font-size: 13px; color: #64748b;">TalentPulse Recruitment Team</p>'
+        + '</div>'
+        + '</div>'
+        + '</div>';
+
+      MailApp.sendEmail({
+        to: emailVal,
+        subject: subject,
+        body: plainText,
+        htmlBody: htmlBody,
+        name: "TalentPulse Recruitment Team"
+      });
+      Logger.log("Confirmation email sent to applicant: " + emailVal);
+    } catch (mailErr) {
+      Logger.log("Error sending applicant email via Apps Script: " + mailErr.toString());
+    }
+  }
 }
 
 // ── Helper to test-send the latest row manually from Apps Script ──

@@ -2,6 +2,9 @@
 *service-account*.json
 *credentials*.json
 *.pem
+.env
+.env.*
+!.env.example
 
 # Java / Maven build output
 target/
