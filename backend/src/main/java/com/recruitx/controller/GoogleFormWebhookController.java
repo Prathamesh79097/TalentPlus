@@ -201,6 +201,13 @@ public class GoogleFormWebhookController {
                 // Update job applicant count
                 updateJobApplicantCount(jobId);
 
+                // Send confirmation email to applicant on update
+                try {
+                    emailService.sendApplicationConfirmationEmail(email, firstName, jobTitle, Instant.now());
+                } catch (Exception mailEx) {
+                    log.warn("Failed to dispatch confirmation email to {}: {}", email, mailEx.getMessage());
+                }
+
                 return ResponseEntity.ok(Map.of(
                         "success", true,
                         "updated", true,
